@@ -1,5 +1,7 @@
 package org.example.testfx2.views;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -38,6 +40,8 @@ public class MainView {
 	private Button exportAlsExcel=new Button("Export als Excel");
 	private Button abnahme=new Button("Abnahme");
 
+	private final ObjectProperty<Quartal> selectedQuartal = new SimpleObjectProperty<>();
+
 	public MainView() throws SQLException {
 	}
 
@@ -52,6 +56,7 @@ public class MainView {
 		VBox tableBox=createMainVBox();
 		TableView<Quartal> tableView=getTableList();
 		mainBox.getChildren().addAll(tableBox,tableView);
+		initializeTableSelection();
 		return  new Scene(mainBox, Utilitie.APP_WIDH,Utilitie.APP_HEIGHT);
 	}
 
@@ -124,6 +129,18 @@ public class MainView {
 
 		tableView.getColumns().addAll(idCol, yearCol, quartalCol,statusCol, userCol, commentCol);
 		return tableView;
+
+	}
+	private void initializeTableSelection() {
+		// Einkauf tablosundan seçim dinle
+		tableView.getSelectionModel().selectedItemProperty().addListener(
+				(obs, oldSelection, newSelection) -> {
+					selectedQuartal.set(newSelection);
+					tableView.getSelectionModel().select(newSelection);
+				});
+
+			// Bearbeiten butonunu sadece seçili öğe varsa aktif et
+		offnen.disableProperty().bind(selectedQuartal.isNull());
 
 	}
 

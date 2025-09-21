@@ -15,6 +15,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.example.testfx2.controller.ArtikelController;
+import org.example.testfx2.controller.MainController;
 import org.example.testfx2.model.Artikel;
 import org.example.testfx2.repository.ArtikelRepo;
 import org.example.testfx2.utils.Utilitie;
@@ -25,6 +26,7 @@ import java.sql.SQLException;
 public class ArtikelView {
 
 	private ArtikelController artikelController=new ArtikelController();
+	private MainView mainView=new MainView();
 	private TableView<Artikel> artikelEinkaufTable;
 	private TableView<Artikel> artikelVerkaufTable;
 
@@ -43,6 +45,9 @@ public class ArtikelView {
 	private Button weiter =new Button("Weiter");
 
 	private final ObjectProperty<Artikel> selectedArtikel = new SimpleObjectProperty<>();
+
+	public ArtikelView() throws SQLException {
+	}
 
 	public void show() throws SQLException {
 		Scene scene=createScene();
@@ -132,6 +137,13 @@ public class ArtikelView {
 	private HBox createDownHBox(){
 		String [] buttonStyle={"text-size-sm","bg-light-blue", "text-white", "text-weight-100", "rounded-border"};
 		abbrechen.getStyleClass().addAll(buttonStyle);
+		abbrechen.setOnAction(e-> {
+			try {
+				mainView.show();
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		});
 		sichern.getStyleClass().addAll(buttonStyle);
 		weiter.getStyleClass().addAll(buttonStyle);
 		HBox rightBox=new HBox(10,abbrechen,sichern, weiter);
