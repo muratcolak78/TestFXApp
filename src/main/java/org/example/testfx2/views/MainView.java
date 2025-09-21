@@ -1,7 +1,5 @@
 package org.example.testfx2.views;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -12,19 +10,24 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import org.example.testfx2.controller.ArtikelController;
 import org.example.testfx2.controller.MainController;
 import org.example.testfx2.controller.NeueAuswertungController;
 import org.example.testfx2.model.Quartal;
 import org.example.testfx2.model.enums.QuartalArt;
 import org.example.testfx2.model.enums.Status;
-import org.example.testfx2.repository.GetJarhlichData;
+import org.example.testfx2.repository.QurtalDataRepo;
+import org.example.testfx2.service.QuartalService;
 import org.example.testfx2.utils.Utilitie;
 import org.example.testfx2.utils.ViewNavigator;
 
-import java.util.List;
+import java.sql.SQLException;
 
 public class MainView {
-	private MainController controller=new MainController();
+	private QuartalService service=new QuartalService();
+	private MainController mainController =new MainController(service);
+	private ArtikelController artikelController=new ArtikelController();
+
 	private NeueAuswertungController auswertungController = new NeueAuswertungController();
 	private TableView<Quartal> tableView;
 
@@ -35,13 +38,16 @@ public class MainView {
 	private Button exportAlsExcel=new Button("Export als Excel");
 	private Button abnahme=new Button("Abnahme");
 
+	public MainView() throws SQLException {
+	}
 
-	public void show(){
+
+	public void show() throws SQLException {
 		Scene scene=createScene();
 		scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 		ViewNavigator.switchViews(scene);
 	}
-	private Scene createScene(){
+	private Scene createScene() throws SQLException {
 		VBox mainBox=new VBox();
 		VBox tableBox=createMainVBox();
 		TableView<Quartal> tableView=getTableList();
@@ -52,13 +58,27 @@ public class MainView {
 	private VBox createMainVBox() {
 		String [] buttonStyle={"text-size-sm","bg-light-blue", "text-white", "text-weight-100", "rounded-border"};
 		checkList.getStyleClass().addAll(buttonStyle);
-		checkList.setOnAction(e->controller.openChecklistPdf());
+		checkList.setOnAction(e-> mainController.openChecklistPdf());
 
 		neueAuswertung.getStyleClass().addAll(buttonStyle);
-		neueAuswertung.setOnAction(e -> auswertungController.openForm());
+		neueAuswertung.setOnAction(e -> {
+			try {
+				auswertungController.openForm();
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		});
 
 
 		offnen.getStyleClass().addAll(buttonStyle);
+		offnen.setOnAction(e-> {
+			try {
+				artikelController.openForm();
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		});
+
 		exportAlsExcel.getStyleClass().addAll(buttonStyle);
 		abnahme.getStyleClass().addAll(buttonStyle);
 
@@ -75,9 +95,9 @@ public class MainView {
 		buttonBox.setAlignment(Pos.CENTER);
 		return new VBox(15, buttonBox);
 	}
-	private TableView<Quartal> getTableList(){
+	private TableView<Quartal> getTableList() throws SQLException {
 		tableView=new TableView<>();
-		tableView.setItems(GetJarhlichData.getMainTable());
+		tableView.setItems(QurtalDataRepo.getMainTable());
 		tableView.setPrefHeight(Utilitie.MAIN_TABLE_WIDTH);
 		tableView.setPrefWidth(Utilitie.MAIN_TABLE_HEIGHT);
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);

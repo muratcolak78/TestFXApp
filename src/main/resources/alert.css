@@ -1,0 +1,37 @@
+/* spezielles Styling bei extremer Allergie B*/
+.success-alert {
+    -fx-background-color: #d4edda;
+}
+
+.success-alert .header-panel {
+    -fx-background-color: #c3e6cb;
+}
+
+.success-alert .content {
+    -fx-text-fill: #155724;
+}
+
+/* Spezieller Stil für Fehlerwarnungen */
+.error-alert {
+    -fx-background-color: #f8d7da;
+}
+
+.error-alert .header-panel {
+    -fx-background-color: #f5c6cb;
+}
+
+.error-alert .content {
+    -fx-text-fill: #721c24;
+}
+
+/* Alarmknöpfe */
+.alert .button {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.alert .button:hover {
+    -fx-background-color: #0056b3;
+}

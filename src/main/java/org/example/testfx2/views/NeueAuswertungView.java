@@ -11,12 +11,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.testfx2.controller.NeueAuswertungController;
 import org.example.testfx2.model.Quartal;
+import org.example.testfx2.model.QuartalDTO;
 import org.example.testfx2.model.User;
 import org.example.testfx2.model.enums.QuartalArt;
 import org.example.testfx2.model.enums.Status;
-import org.example.testfx2.repository.GetJarhlichData;
-import org.example.testfx2.repository.GetUsers;
+import org.example.testfx2.repository.UsersRepo;
 
+import java.sql.SQLException;
 import java.util.function.Consumer;
 
 public class NeueAuswertungView {
@@ -30,15 +31,18 @@ public class NeueAuswertungView {
     private Button abbrechenBtn;
     private Button weiterBtn;
 
-    public void show(Consumer<Quartal> onSave) {
+	public NeueAuswertungView() throws SQLException {
+	}
+
+	public void show() throws SQLException {
         Stage stage = new Stage();
         stage.setTitle("Neue Auswertung");
-        VBox layout=createNewuAuswerungBox(stage,onSave);
+        VBox layout=createNewuAuswerungBox(stage);
 
         stage.setScene(new Scene(layout, 450, 500));
         stage.show();
     }
-    private VBox createNewuAuswerungBox(Stage stage, Consumer<Quartal> onSave ){
+    private VBox createNewuAuswerungBox(Stage stage) throws SQLException {
         // Jahr
         Label jahrLabel = new Label("Jahr:");
         jahrBox = new ComboBox<>(FXCollections.observableArrayList(
@@ -61,7 +65,7 @@ public class NeueAuswertungView {
 
         // Abnahme
         Label abnahmeLabel = new Label("Abnahme durch:");
-        abnahmeBox = new ComboBox<>(FXCollections.observableArrayList(GetUsers.getUsers()));
+        abnahmeBox = new ComboBox<>(FXCollections.observableArrayList(UsersRepo.getUsers()));
         abnahmeBox.setPromptText("Benutzer");
 
         abnahmeBox.setCellFactory(lv -> new ListCell<>() {
@@ -103,15 +107,15 @@ public class NeueAuswertungView {
 
         sichernBtn.setOnAction(e -> {
             try {
-                Quartal q = controller.buildQuartal(
+                QuartalDTO q = new QuartalDTO(
                         jahrBox.getValue(),
                         quartalBox.getValue(),
                         statusBox.getValue(),
-                        abnahmeBox.getValue(),
+                        abnahmeBox.getValue().getUserName(),
                         kommentarArea.getText()
                 );
-                controller.saveQuartal(q);
-                onSave.accept(q);
+               controller.saveQuartal(q);
+                //onSave.accept(q);
                 stage.close();
             } catch (IllegalArgumentException ex) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -119,6 +123,8 @@ public class NeueAuswertungView {
                 alert.setHeaderText("Unvollständige Informationen");
                 alert.setContentText(ex.getMessage());
                 alert.showAndWait();
+            } catch (SQLException ex) {
+	            throw new RuntimeException(ex);
             }
         });
 

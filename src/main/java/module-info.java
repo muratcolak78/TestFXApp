@@ -6,6 +6,7 @@ module org.example.testfx2 {
 	requires jdk.jfr;
 	requires static lombok;
 	requires java.desktop;
+	requires java.sql;
 
 	opens org.example.testfx2 to javafx.fxml;
 	opens org.example.testfx2.model to javafx.base;
