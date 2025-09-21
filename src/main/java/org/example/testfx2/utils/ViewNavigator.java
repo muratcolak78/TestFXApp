@@ -9,8 +9,9 @@ public class ViewNavigator {
 	public static void setMainStage(Stage stage){
 		mainStage=stage;
 	}
-	public static void switchViews(Scene scene){
+	public static void switchViews(Scene scene, String stageName){
 		if(mainStage!=null){
+			mainStage.setTitle(stageName);
 			mainStage.setScene(scene);
 			mainStage.show();
 		}

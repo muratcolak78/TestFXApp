@@ -49,7 +49,7 @@ public class MainView {
 	public void show() throws SQLException {
 		Scene scene=createScene();
 		scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
-		ViewNavigator.switchViews(scene);
+		ViewNavigator.switchViews(scene, "Main");
 	}
 	private Scene createScene() throws SQLException {
 		VBox mainBox=new VBox();

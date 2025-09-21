@@ -27,6 +27,9 @@ public class ArtikelView {
 
 	private ArtikelController artikelController=new ArtikelController();
 	private MainView mainView=new MainView();
+	private InventurListView inventurListView=new InventurListView();
+
+
 	private TableView<Artikel> artikelEinkaufTable;
 	private TableView<Artikel> artikelVerkaufTable;
 
@@ -52,7 +55,7 @@ public class ArtikelView {
 	public void show() throws SQLException {
 		Scene scene=createScene();
 		scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
-		ViewNavigator.switchViews(scene);
+		ViewNavigator.switchViews(scene,"Artikel");
 	}
 	private Scene createScene() throws SQLException {
 		VBox mainBox = new VBox();
@@ -145,7 +148,17 @@ public class ArtikelView {
 			}
 		});
 		sichern.getStyleClass().addAll(buttonStyle);
+
 		weiter.getStyleClass().addAll(buttonStyle);
+		weiter.setOnAction(e-> {
+			try {
+				inventurListView.show();
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		});
+
+
 		HBox rightBox=new HBox(10,abbrechen,sichern, weiter);
 		// Region for spacing
 		Region spacer = new Region();

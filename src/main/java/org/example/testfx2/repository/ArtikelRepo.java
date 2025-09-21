@@ -39,7 +39,7 @@ public class ArtikelRepo {
 	public static List<Artikel> ArtikelDao() {
 		System.out.println("artikle getiren metot calisti");
 		List<Artikel> list = new ArrayList<>();
-		String sql = "SELECT * FROM artikels";
+		String sql = "SELECT * FROM artikel";
 
 		try (Connection conn = Database.connect();
 		     Statement stmt = conn.createStatement();
@@ -50,8 +50,13 @@ public class ArtikelRepo {
 						rs.getInt("id"),
 						rs.getString("artikel_nr"),
 						rs.getString("name"),
+						rs.getInt("artikel_type_id"),
+						rs.getInt("qualitaet_id"),
+						rs.getString("groesse"),
 						rs.getDouble("einkaufspreis"),
 						rs.getDouble("verkaufspreis"),
+						rs.getDouble("gewicht"),
+						rs.getDouble("max_belastung"),
 						rs.getDate("created_at")
 				);
 				list.add(artikel);
