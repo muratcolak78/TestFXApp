@@ -80,16 +80,15 @@ ScrollPane > .viewport {
 
 /*modern button */
 .button-modern {
-    -fx-background-color: #377BE1;
+-fx-background-color: #377BE1;
     -fx-text-fill: white;
-    -fx-font-size: 14px;
+    -fx-font-size: 12px;
     -fx-font-weight: 600;
-    -fx-padding: 8px 16px;
-    -fx-background-radius: 6px;
-    -fx-border-radius: 6px;
+    -fx-padding: 4px 12px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0.3, 0, 2);
-    -fx-transition: all 0.3s ease;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0.2, 0, 1);
 }
 
 .button-modern:hover {

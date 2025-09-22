@@ -27,6 +27,9 @@ import java.util.List;
 import javafx.geometry.Insets;
 
 public class InventurListView {
+
+    private TauschkontoView tauschkontoView=new TauschkontoView();
+
     private TableView<Inventur> inventurTable;
     private TableView<InventurArtikel> inventurArtikelTable;
     private Button abbrechenButton = new ModernButton("Abbrechen");
@@ -42,8 +45,6 @@ public class InventurListView {
         scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         ViewNavigator.switchViews(scene,"Inventur");
     }
-
-
 
     private Scene createScene() throws SQLException {
         VBox mainBox = new VBox(20);
@@ -61,10 +62,6 @@ public class InventurListView {
     private HBox createDownHbox() {
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
-        abbrechenButton.getStyleClass().addAll("button-style");
-        sichernButton.getStyleClass().addAll("button-style");
-        weiterButton.getStyleClass().addAll("button-style");
-
         abbrechenButton.setOnAction(e -> {
             try {
                 new MainView().show();
@@ -74,12 +71,17 @@ public class InventurListView {
         });
 
         sichernButton.setOnAction(e -> saveInventur());
-        weiterButton.setOnAction(e -> showNextView());
+        weiterButton.setOnAction(e-> {
+	        try {
+		        tauschkontoView.show();
+	        } catch (SQLException ex) {
+		        throw new RuntimeException(ex);
+	        }
+        });
 
         buttonBox.getChildren().addAll(abbrechenButton, sichernButton, weiterButton);
         return buttonBox;
     }
-
 
     private VBox createInventurListBox() throws SQLException {
         VBox vBox=new VBox();

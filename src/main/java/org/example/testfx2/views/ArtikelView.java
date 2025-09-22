@@ -81,17 +81,14 @@ public class ArtikelView {
 	}
 
 	private VBox createArtikelEinKaufVBox() {
-		String [] buttonStyle={"text-size-sm","bg-light-blue", "text-white", "text-weight-100", "rounded-border"};
-		Import.getStyleClass().addAll(buttonStyle);
+
 		Import.setOnAction(e -> {
 			artikelController.importArtikel();
 		});
 
 
-		exportAsPdf.getStyleClass().addAll(buttonStyle);
 		exportAsPdf.setOnAction(e->artikelController.exportAsPdf());
 
-		bearbeiten.getStyleClass().addAll(buttonStyle);
 		bearbeiten.setOnAction(e->artikelController.bearbeiten());
 
 
@@ -112,17 +109,14 @@ public class ArtikelView {
 
 	private VBox createArtikelVerkaufVBox() {
 
-		String [] buttonStyle={"text-size-sm","bg-light-blue", "text-white", "text-weight-100", "rounded-border"};
-		Import2.getStyleClass().addAll(buttonStyle);
+
 		Import2.setOnAction(e -> {
 			artikelController.importArtikel();
 		});
 
 
-		exportAsPdf2.getStyleClass().addAll(buttonStyle);
 		exportAsPdf2.setOnAction(e->artikelController.exportAsPdf());
 
-		bearbeiten2.getStyleClass().addAll(buttonStyle);
 		bearbeiten2.setOnAction(e->artikelController.bearbeiten());
 
 		HBox rightBox=new HBox(10,Import2,exportAsPdf2, bearbeiten2);
@@ -139,8 +133,7 @@ public class ArtikelView {
 	}
 
 	private HBox createDownHBox(){
-		String [] buttonStyle={"text-size-sm","bg-light-blue", "text-white", "text-weight-100", "rounded-border"};
-		abbrechen.getStyleClass().addAll(buttonStyle);
+
 		abbrechen.setOnAction(e-> {
 			try {
 				mainView.show();
@@ -148,9 +141,7 @@ public class ArtikelView {
 				throw new RuntimeException(ex);
 			}
 		});
-		sichern.getStyleClass().addAll(buttonStyle);
 
-		weiter.getStyleClass().addAll(buttonStyle);
 		weiter.setOnAction(e-> {
 			try {
 				inventurListView.show();
