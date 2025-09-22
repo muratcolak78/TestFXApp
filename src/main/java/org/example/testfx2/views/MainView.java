@@ -20,6 +20,7 @@ import org.example.testfx2.model.enums.QuartalArt;
 import org.example.testfx2.model.enums.Status;
 import org.example.testfx2.repository.QurtalDataRepo;
 import org.example.testfx2.service.QuartalService;
+import org.example.testfx2.utils.ModernButton;
 import org.example.testfx2.utils.Utilitie;
 import org.example.testfx2.utils.ViewNavigator;
 
@@ -34,11 +35,11 @@ public class MainView {
 	private TableView<Quartal> tableView;
 
 
-	private Button checkList=new Button("Checklist");
-	private Button neueAuswertung=new Button("Neue Auswertung");
-	private Button offnen=new Button("Öffnen");
-	private Button exportAlsExcel=new Button("Export als Excel");
-	private Button abnahme=new Button("Abnahme");
+	private Button checkList=new ModernButton("Checklist");
+	private Button neueAuswertung=new ModernButton("Neue Auswertung");
+	private Button offnen=new ModernButton("Öffnen");
+	private Button exportAlsExcel=new ModernButton("Export als Excel");
+	private Button abnahme=new ModernButton("Abnahme");
 
 	private final ObjectProperty<Quartal> selectedQuartal = new SimpleObjectProperty<>();
 
@@ -61,11 +62,9 @@ public class MainView {
 	}
 
 	private VBox createMainVBox() {
-		String [] buttonStyle={"text-size-sm","bg-light-blue", "text-white", "text-weight-100", "rounded-border"};
-		checkList.getStyleClass().addAll(buttonStyle);
+
 		checkList.setOnAction(e-> mainController.openChecklistPdf());
 
-		neueAuswertung.getStyleClass().addAll(buttonStyle);
 		neueAuswertung.setOnAction(e -> {
 			try {
 				auswertungController.openForm();
@@ -74,8 +73,6 @@ public class MainView {
 			}
 		});
 
-
-		offnen.getStyleClass().addAll(buttonStyle);
 		offnen.setOnAction(e-> {
 			try {
 				artikelController.openForm();
@@ -83,9 +80,6 @@ public class MainView {
 				throw new RuntimeException(ex);
 			}
 		});
-
-		exportAlsExcel.getStyleClass().addAll(buttonStyle);
-		abnahme.getStyleClass().addAll(buttonStyle);
 
 		HBox leftBox=new HBox(checkList);
 		HBox rightBox=new HBox(10,neueAuswertung,offnen,exportAlsExcel,abnahme);

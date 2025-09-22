@@ -16,6 +16,7 @@ import org.example.testfx2.model.User;
 import org.example.testfx2.model.enums.QuartalArt;
 import org.example.testfx2.model.enums.Status;
 import org.example.testfx2.repository.UsersRepo;
+import org.example.testfx2.utils.ModernButton;
 
 import java.sql.SQLException;
 import java.util.function.Consumer;
@@ -37,9 +38,12 @@ public class NeueAuswertungView {
 	public void show() throws SQLException {
         Stage stage = new Stage();
         stage.setTitle("Neue Auswertung");
+
         VBox layout=createNewuAuswerungBox(stage);
 
         stage.setScene(new Scene(layout, 450, 500));
+        stage.getScene().getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
+
         stage.show();
     }
     private VBox createNewuAuswerungBox(Stage stage) throws SQLException {
@@ -49,19 +53,19 @@ public class NeueAuswertungView {
                 2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033
         ));
         jahrBox.setPromptText("Jahr wählen");
-        VBox jahrGroup = new VBox(5, jahrLabel, jahrBox);
+
 
         // Quartal
         Label quartalLabel = new Label("Quartal:");
         quartalBox = new ComboBox<>(FXCollections.observableArrayList(QuartalArt.values()));
         quartalBox.setPromptText("Quartal wählen");
-        VBox quartalGroup = new VBox(5, quartalLabel, quartalBox);
+
 
         // Status
         Label statusLabel = new Label("Status:");
         statusBox = new ComboBox<>(FXCollections.observableArrayList(Status.values()));
         statusBox.setPromptText("Status wählen");
-        VBox statusGroup = new VBox(5, statusLabel, statusBox);
+
 
         // Abnahme
         Label abnahmeLabel = new Label("Abnahme durch:");
@@ -82,7 +86,10 @@ public class NeueAuswertungView {
                 setText(empty || item == null ? null : item.getUserName());
             }
         });
-        VBox abnahmeGroup = new VBox(5, abnahmeLabel, abnahmeBox);
+        VBox abnahmeGroup = new VBox(5, jahrLabel, jahrBox,
+                quartalLabel, quartalBox,
+                statusLabel, statusBox,
+                abnahmeLabel, abnahmeBox);
 
         // Kommentar
         Label kommentarLabel = new Label("Kommentar:");
@@ -93,9 +100,9 @@ public class NeueAuswertungView {
         VBox kommentarGroup = new VBox(5, kommentarLabel, kommentarArea);
 
         // Butonlar
-        sichernBtn = new Button("Sichern");
-        abbrechenBtn = new Button("Abbrechen");
-        weiterBtn = new Button("Weiter");
+        sichernBtn = new ModernButton("Sichern");
+        abbrechenBtn = new ModernButton("Abbrechen");
+        weiterBtn = new ModernButton("Weiter");
 
         BooleanBinding isFormValid = jahrBox.valueProperty().isNotNull()
                 .and(quartalBox.valueProperty().isNotNull())
@@ -135,7 +142,6 @@ public class NeueAuswertungView {
         buttonBox.setAlignment(Pos.CENTER);
 
         VBox layout = new VBox(10,
-                jahrGroup, quartalGroup, statusGroup,
                 abnahmeGroup, kommentarGroup,
                 buttonBox
         );

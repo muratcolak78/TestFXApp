@@ -54,6 +54,7 @@ public class InventurRepo {
 				);
 				list.add(inventur);
 			}
+			list.forEach(a-> System.out.println(a));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			AlertUtil.showErrorAlert("Fehler", "Fehler beim Laden der Inventuren");

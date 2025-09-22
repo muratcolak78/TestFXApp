@@ -18,6 +18,7 @@ import org.example.testfx2.controller.ArtikelController;
 import org.example.testfx2.controller.MainController;
 import org.example.testfx2.model.Artikel;
 import org.example.testfx2.repository.ArtikelRepo;
+import org.example.testfx2.utils.ModernButton;
 import org.example.testfx2.utils.Utilitie;
 import org.example.testfx2.utils.ViewNavigator;
 
@@ -36,16 +37,16 @@ public class ArtikelView {
 
 
 	private Label artikellist =new Label("Artikellist");
-	private Button Import=new Button("Import");
-	private Button exportAsPdf =new Button("Export as PDF");
-	private Button bearbeiten =new Button("Bearbeiten");
-	private Button Import2=new Button("Import");
-	private Button exportAsPdf2 =new Button("Export as PDF");
-	private Button bearbeiten2 =new Button("Bearbeiten");
+	private Button Import=new ModernButton("Import");
+	private Button exportAsPdf =new ModernButton("Export as PDF");
+	private Button bearbeiten =new ModernButton("Bearbeiten");
+	private Button Import2=new ModernButton("Import");
+	private Button exportAsPdf2 =new ModernButton("Export as PDF");
+	private Button bearbeiten2 =new ModernButton("Bearbeiten");
 
-	private Button abbrechen=new Button("Abbrechen");
-	private Button sichern =new Button("Sichern");
-	private Button weiter =new Button("Weiter");
+	private Button abbrechen=new ModernButton("Abbrechen");
+	private Button sichern =new ModernButton("Sichern");
+	private Button weiter =new ModernButton("Weiter");
 
 	private final ObjectProperty<Artikel> selectedArtikel = new SimpleObjectProperty<>();
 

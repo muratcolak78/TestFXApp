@@ -2,11 +2,22 @@
 /* Label, TextField, Button, PasswordField, ComboBox, DatePicker{
     -fx-border-width: 1px;
     -fx-border-color: #fff;
-} */
+}
 VBox {
     -fx-border-width: 1px;
     -fx-border-color: red;
+}*/
+VBox  {
+    -fx-background-color: #F9FAFB;         /* açık gri arka plan */
+    -fx-border-color: #D1D5DB;             /* soft gri kenarlık */
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;                /* köşeleri yumuşatır */
+    -fx-padding: 16px;                     /* iç boşluk */
+    -fx-spacing: 12px;                     /* çocuklar arası boşluk */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0.3, 0, 2); /* hafif gölge */
+    -fx-font-family: "Segoe UI", "Roboto", sans-serif;
 }
+
 /* VBox {
     -fx-border-width: 1px;
     -fx-border-color: red;
@@ -67,6 +78,28 @@ ScrollPane > .viewport {
     -fx-background-color: #ba2f2f;
 }
 
+/*modern button */
+.button-modern {
+    -fx-background-color: #377BE1;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0.3, 0, 2);
+    -fx-transition: all 0.3s ease;
+}
+
+.button-modern:hover {
+    -fx-background-color: #2F6BD0;
+}
+
+.button-modern:pressed {
+    -fx-background-color: #255AB0;
+}
+
 /* text */
 .text-size-lg{
     -fx-font-size: 36px;
@@ -83,6 +116,55 @@ ScrollPane > .viewport {
 .text-white{
     -fx-text-fill: #fff;
 }
+.text-white {
+    -fx-text-fill: #FFFFFF;
+}
+
+.text-black {
+    -fx-text-fill: #000000;
+}
+
+.text-blue {
+    -fx-text-fill: #377BE1;
+}
+
+.text-red {
+    -fx-text-fill: #E13742;
+}
+
+.text-green {
+    -fx-text-fill: #4CAF50;
+}
+
+.text-yellow {
+    -fx-text-fill: #FFEB3B;
+}
+
+.text-gray {
+    -fx-text-fill: #B0BEC5;
+}
+
+.text-purple {
+    -fx-text-fill: #9C27B0;
+}
+
+
+.text-weight-100 {
+    -fx-font-weight: 100; /* ultra light */
+}
+
+.text-weight-400 {
+    -fx-font-weight: 400; /* normal */
+}
+
+.text-weight-700 {
+    -fx-font-weight: 700; /* bold */
+}
+
+.text-weight-900 {
+    -fx-font-weight: 900; /* extra bold */
+}
+
 
 .text-light-red{
     -fx-text-fill: #ba2f2f;
@@ -96,9 +178,7 @@ ScrollPane > .viewport {
     -fx-text-fill: #BEB9B9;
 }
 
-.text-weight-700{
-    -fx-font-weight: 700;
-}
+
 
 /* background colors */
 .bg-light-blue{
@@ -107,6 +187,33 @@ ScrollPane > .viewport {
 
 .bg-light-red{
     -fx-background-color: #e13742;
+}
+.bg-light-blue {
+    -fx-background-color: #377BE1;
+}
+
+.bg-light-red {
+    -fx-background-color: #e13742;
+}
+
+.bg-light-green {
+    -fx-background-color: #4CAF50; /* canlı yeşil */
+}
+
+.bg-light-yellow {
+    -fx-background-color: #FFEB3B; /* parlak sarı */
+}
+
+.bg-light-gray {
+    -fx-background-color: #B0BEC5; /* nötr gri */
+}
+
+.bg-light-purple {
+    -fx-background-color: #9C27B0; /* mor ton */
+}
+
+.bg-light-orange {
+    -fx-background-color: #FF9800; /* turuncu ton */
 }
 
 /* text decorations */

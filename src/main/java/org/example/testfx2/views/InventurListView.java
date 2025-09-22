@@ -17,6 +17,8 @@ import org.example.testfx2.model.InventurArtikel;
 import org.example.testfx2.model.Standort;
 import org.example.testfx2.repository.*;
 import org.example.testfx2.utils.AlertUtil;
+import org.example.testfx2.utils.ModernButton;
+import org.example.testfx2.utils.Utilitie;
 import org.example.testfx2.utils.ViewNavigator;
 
 import java.sql.SQLException;
@@ -27,9 +29,9 @@ import javafx.geometry.Insets;
 public class InventurListView {
     private TableView<Inventur> inventurTable;
     private TableView<InventurArtikel> inventurArtikelTable;
-    private Button abbrechenButton = new Button("Abbrechen");
-    private Button sichernButton = new Button("Sichern");
-    private Button weiterButton = new Button("Weiter");
+    private Button abbrechenButton = new ModernButton("Abbrechen");
+    private Button sichernButton = new ModernButton("Sichern");
+    private Button weiterButton = new ModernButton("Weiter");
 
     private final ObjectProperty<Inventur> selectedInventur = new SimpleObjectProperty<>();
 
@@ -53,7 +55,7 @@ public class InventurListView {
 
         mainBox.getChildren().addAll(inventurListBox, inventurDetailsBox, downHbox);
 
-        return new Scene(mainBox, 1000, 700);
+        return new Scene(mainBox, Utilitie.APP_WIDH,Utilitie.APP_HEIGHT);
     }
 
     private HBox createDownHbox() {
@@ -81,6 +83,7 @@ public class InventurListView {
 
     private VBox createInventurListBox() throws SQLException {
         VBox vBox=new VBox();
+        vBox.setPrefHeight(300);
         Label inventurLabel = new Label("Inventurliste");
         inventurTable = createInventurTable();
         vBox.getChildren().addAll(inventurLabel,inventurTable);
@@ -114,7 +117,7 @@ public class InventurListView {
         statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
 
         TableColumn<Inventur, String> abgabeDatumCol = new TableColumn<>("Abgabe");
-        abgabeDatumCol.setCellValueFactory(new PropertyValueFactory<>("abgabe_datum"));
+        abgabeDatumCol.setCellValueFactory(new PropertyValueFactory<>("abgabeDatum"));
 
         TableColumn<Inventur, String> abgabePersonCol = new TableColumn<>("Abgabe Person");
         abgabePersonCol.setCellValueFactory(cellData -> {
@@ -124,7 +127,7 @@ public class InventurListView {
         });
 
         TableColumn<Inventur, String> abnahmeDatumCol = new TableColumn<>("Abnahme Datum");
-        abnahmeDatumCol.setCellValueFactory(new PropertyValueFactory<>("abnahme_datum"));
+        abnahmeDatumCol.setCellValueFactory(new PropertyValueFactory<>("abnahmeDatum"));
 
         TableColumn<Inventur, String> abnahmePersonCol = new TableColumn<>("Abnahme Person");
         abnahmePersonCol.setCellValueFactory(cellData -> {

@@ -3,12 +3,14 @@ package org.example.testfx2.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.sql.Date;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Inventur {
 	private int id;
 	private int standortId;
