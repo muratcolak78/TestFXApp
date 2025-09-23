@@ -20,6 +20,8 @@ import java.sql.SQLException;
 
 // TauschkontoView.java
 public class TauschkontoView {
+    private MainView mainView=new MainView();
+    private BerechnungView berechnungView=new BerechnungView();
     private TableView<TauschkontoUebersicht> uebersichtTable;
     private TableView<KundeSaldo> kundenTable;
     private Button importButton = new ModernButton("Import");
@@ -32,7 +34,10 @@ public class TauschkontoView {
     private Button sichernButton = new ModernButton("Sichern");
     private Button weiterButton = new ModernButton("Weiter");
 
-    public void show() throws SQLException {
+	public TauschkontoView() throws SQLException {
+	}
+
+	public void show() throws SQLException {
         Scene scene = createScene();
         scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         ViewNavigator.switchViews(scene, "Tauschkonten");
@@ -181,9 +186,23 @@ public class TauschkontoView {
 
     private HBox createUntenButtonBox() {
         HBox hbox = new HBox(10);
-        // Butonları sağa hizala
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        abbrechenButton.setOnAction(e-> {
+	        try {
+		        mainView.show();
+	        } catch (SQLException ex) {
+		        throw new RuntimeException(ex);
+	        }
+        });
+        weiterButton.setOnAction(e-> {
+	        try {
+		        berechnungView.show();
+	        } catch (SQLException ex) {
+		        throw new RuntimeException(ex);
+	        }
+        });
         hbox.getChildren().addAll(spacer, abbrechenButton, sichernButton, weiterButton);
 
         return hbox;

@@ -267,6 +267,18 @@ ScrollPane > .viewport {
     -fx-background-color: #515050; /* Background color */
     -fx-text-fill: #BEB9B9;        /* Font color */
 }
+/* style.css'e ekle */
+.text-field-modern {
+    -fx-padding: 5px;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+}
+
+.text-field-modern:focused {
+    -fx-border-color: #377BE1;
+    -fx-effect: dropshadow(gaussian, rgba(55,123,225,0.3), 4, 0.3, 0, 1);
+}
 
 
 
