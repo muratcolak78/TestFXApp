@@ -10,7 +10,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.testfx2.controller.NeueAuswertungController;
-import org.example.testfx2.model.Quartal;
 import org.example.testfx2.model.QuartalDTO;
 import org.example.testfx2.model.User;
 import org.example.testfx2.model.enums.QuartalArt;
@@ -19,7 +18,6 @@ import org.example.testfx2.repository.UsersRepo;
 import org.example.testfx2.utils.ModernButton;
 
 import java.sql.SQLException;
-import java.util.function.Consumer;
 
 public class NeueAuswertungView {
     private NeueAuswertungController controller=new NeueAuswertungController();

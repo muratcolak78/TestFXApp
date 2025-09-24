@@ -11,7 +11,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import org.example.testfx2.model.Artikel;
 import org.example.testfx2.model.Inventur;
 import org.example.testfx2.model.InventurArtikel;
 import org.example.testfx2.model.Standort;
@@ -223,8 +222,8 @@ public class InventurListView {
     }
 
     private TableView<InventurArtikel> createInventurArtikelTable() {
-        TableView<InventurArtikel> table = new TableView<>();
-        table.setPrefHeight(200);
+       TableView<InventurArtikel> table = new TableView<>();
+      /*   table.setPrefHeight(200);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         TableColumn<InventurArtikel, String> nameCol = new TableColumn<>("Name");
@@ -232,7 +231,7 @@ public class InventurListView {
             try {
                 int artikelId = cellData.getValue().getArtikelId();
                 Artikel artikel = ArtikelRepo.getArtikelObservableList().stream()
-                        .filter(a -> a.getId() == artikelId)
+                        .filter(a -> a.getArtikelId() == artikelId)
                         .findFirst()
                         .orElse(null);
                 return new SimpleStringProperty(artikel != null ? artikel.getArtikelName() : "");
@@ -282,7 +281,7 @@ public class InventurListView {
         });
 
         table.getColumns().addAll(nameCol, statusCol, typeCol, summeCol);
-
+*/
         return table;
     }
 

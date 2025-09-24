@@ -8,11 +8,11 @@ import org.example.testfx2.repository.QurtalDataRepo;
 import java.sql.SQLException;
 
 public class QuartalService {
-    public ObservableList<Quartal> getAllQuartals() throws SQLException {
+   /* public ObservableList<Quartal> getAllQuartals() throws SQLException {
         return QurtalDataRepo.getMainTable();
     }
     
     public void addQuartal(QuartalDTO quartal) throws SQLException {
         QurtalDataRepo.addQuartal(quartal);
-    }
+    }*/
 }

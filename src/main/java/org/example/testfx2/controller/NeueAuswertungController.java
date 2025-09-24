@@ -14,7 +14,7 @@ public class NeueAuswertungController {
     private ObservableList<Quartal> quartalList;
 
     public NeueAuswertungController() throws SQLException {
-       quartalList = FXCollections.observableArrayList(QurtalDataRepo.getMainTable());
+      // quartalList = FXCollections.observableArrayList(QurtalDataRepo.getMainTable());
     }
 
     public void openForm() throws SQLException {

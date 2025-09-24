@@ -3,6 +3,7 @@ package org.example.testfx2.views;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -15,9 +16,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.example.testfx2.controller.ArtikelController;
-import org.example.testfx2.controller.MainController;
-import org.example.testfx2.model.Artikel;
-import org.example.testfx2.repository.ArtikelRepo;
+import org.example.testfx2.model2.ArtikelOutput;
 import org.example.testfx2.utils.ModernButton;
 import org.example.testfx2.utils.Utilitie;
 import org.example.testfx2.utils.ViewNavigator;
@@ -31,8 +30,8 @@ public class ArtikelView {
 	private InventurListView inventurListView=new InventurListView();
 
 
-	private TableView<Artikel> artikelEinkaufTable;
-	private TableView<Artikel> artikelVerkaufTable;
+	private TableView<ArtikelOutput> artikelEinkaufTable;
+	private TableView<ArtikelOutput> artikelVerkaufTable;
 
 
 
@@ -48,9 +47,12 @@ public class ArtikelView {
 	private Button sichern =new ModernButton("Sichern");
 	private Button weiter =new ModernButton("Weiter");
 
-	private final ObjectProperty<Artikel> selectedArtikel = new SimpleObjectProperty<>();
+	private int selectedQuartalId;
 
-	public ArtikelView() throws SQLException {
+	private final ObjectProperty<ArtikelOutput> selectedArtikel = new SimpleObjectProperty<>();
+
+	public ArtikelView(int selected) throws SQLException {
+		this.selectedQuartalId=selected;
 	}
 
 	public void show() throws SQLException {
@@ -66,8 +68,8 @@ public class ArtikelView {
 		artikelEinkaufTable = getTableArtikelEinkauf();
 		artikelVerkaufTable = getTableArtikelVerkauf();
 		// Tabloları doldur
-		artikelEinkaufTable.setItems(ArtikelRepo.getArtikelObservableList());
-		artikelVerkaufTable.setItems(ArtikelRepo.getArtikelObservableList());
+		//artikelEinkaufTable.setItems(ArtikelRepo.getArtikelObservableList());
+		//artikelVerkaufTable.setItems(ArtikelRepo.getArtikelObservableList());
 
 		// Sonra selection listener'ları ekle
 		initializeTableSelection();
@@ -162,53 +164,51 @@ public class ArtikelView {
 		return buttonBox;
 	}
 
-	private TableView<Artikel> getTableArtikelEinkauf() throws SQLException {
+	private TableView<ArtikelOutput> getTableArtikelEinkauf() throws SQLException {
 		artikelEinkaufTable =new TableView<>();
-		artikelEinkaufTable.setItems(ArtikelRepo.getArtikelObservableList());
+		ObservableList<ArtikelOutput> artikelTable = artikelController.getArtikelTable(selectedQuartalId);
+		artikelEinkaufTable.setItems(artikelTable);
 		artikelEinkaufTable.setPrefHeight(Utilitie.MAIN_TABLE_WIDTH);
 		artikelEinkaufTable.setPrefWidth(Utilitie.MAIN_TABLE_HEIGHT);
 		artikelEinkaufTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
 
-		TableColumn<Artikel, Integer> idCol = new TableColumn<>("ID");
-		idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
 
-		TableColumn<Artikel, String> artikelNrCol = new TableColumn<>("Artikel Nr");
-		artikelNrCol.setCellValueFactory(new PropertyValueFactory<>("artikelNr"));
+		TableColumn<ArtikelOutput, Integer> artikelNrCol = new TableColumn<>("Artikel Nr");
+		artikelNrCol.setCellValueFactory(new PropertyValueFactory<>("artikelId"));
 
-		TableColumn<Artikel, String> artikelNameCol = new TableColumn<>("Name");
-		artikelNameCol.setCellValueFactory(new PropertyValueFactory<>("artikelName"));
+		TableColumn<ArtikelOutput, String> artikelNameCol = new TableColumn<>("Name");
+		artikelNameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
 
-		TableColumn<Artikel, Double> einkaufPreis = new TableColumn<>("Einkaufpreis");
+		TableColumn<ArtikelOutput, Double> einkaufPreis = new TableColumn<>("Einkaufpreis");
 		einkaufPreis.setCellValueFactory(new PropertyValueFactory<>("einkaufPreis"));
 
-		artikelEinkaufTable.getColumns().addAll(idCol, artikelNrCol, artikelNameCol,einkaufPreis);
+		artikelEinkaufTable.getColumns().addAll(artikelNrCol, artikelNameCol,einkaufPreis);
 
 		return artikelEinkaufTable;
 
 	}
 
-	private TableView<Artikel> getTableArtikelVerkauf() throws SQLException {
+	private TableView<ArtikelOutput> getTableArtikelVerkauf() throws SQLException {
 		artikelVerkaufTable =new TableView<>();
-		artikelVerkaufTable.setItems(ArtikelRepo.getArtikelObservableList());
+		ObservableList<ArtikelOutput> artikelTable = artikelController.getArtikelTable(selectedQuartalId);
+		artikelVerkaufTable.setItems(artikelTable);
 		artikelVerkaufTable.setPrefHeight(Utilitie.MAIN_TABLE_WIDTH);
 		artikelVerkaufTable.setPrefWidth(Utilitie.MAIN_TABLE_HEIGHT);
 		artikelVerkaufTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
 
-		TableColumn<Artikel, Integer> idCol = new TableColumn<>("ID");
-		idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
 
-		TableColumn<Artikel, String> artikelNrCol = new TableColumn<>("Artikel Nr");
-		artikelNrCol.setCellValueFactory(new PropertyValueFactory<>("artikelNr"));
+		TableColumn<ArtikelOutput, Integer> artikelNrCol = new TableColumn<>("Artikel Nr");
+		artikelNrCol.setCellValueFactory(new PropertyValueFactory<>("artikelId"));
 
-		TableColumn<Artikel, String> artikelNameCol = new TableColumn<>("Name");
-		artikelNameCol.setCellValueFactory(new PropertyValueFactory<>("artikelName"));
+		TableColumn<ArtikelOutput, String> artikelNameCol = new TableColumn<>("Name");
+		artikelNameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
 
-		TableColumn<Artikel, Double> verkaufPreis = new TableColumn<>("Verkaufpreis");
+		TableColumn<ArtikelOutput, Double> verkaufPreis = new TableColumn<>("Verkaufpreis");
 		verkaufPreis.setCellValueFactory(new PropertyValueFactory<>("verkaufPreis"));
 
-		artikelVerkaufTable.getColumns().addAll(idCol, artikelNrCol, artikelNameCol,verkaufPreis);
+		artikelVerkaufTable.getColumns().addAll( artikelNrCol, artikelNameCol,verkaufPreis);
 
 		return artikelVerkaufTable;
 

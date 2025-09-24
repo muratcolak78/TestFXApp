@@ -1,13 +1,12 @@
 package org.example.testfx2.views;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -15,128 +14,150 @@ import javafx.scene.layout.VBox;
 import org.example.testfx2.controller.ArtikelController;
 import org.example.testfx2.controller.MainController;
 import org.example.testfx2.controller.NeueAuswertungController;
-import org.example.testfx2.model.Quartal;
-import org.example.testfx2.model.enums.QuartalArt;
-import org.example.testfx2.model.enums.Status;
-import org.example.testfx2.repository.QurtalDataRepo;
+import org.example.testfx2.model2.QuartalOutput;
 import org.example.testfx2.service.QuartalService;
+import org.example.testfx2.utils.AlertUtil;
 import org.example.testfx2.utils.ModernButton;
 import org.example.testfx2.utils.Utilitie;
 import org.example.testfx2.utils.ViewNavigator;
 
 import java.sql.SQLException;
-
 public class MainView {
-	private QuartalService service=new QuartalService();
-	private MainController mainController =new MainController(service);
-	private ArtikelController artikelController=new ArtikelController();
-
+	private QuartalService service = new QuartalService();
+	private MainController mainController = new MainController(service);
+	private ArtikelController artikelController = new ArtikelController();
 	private NeueAuswertungController auswertungController = new NeueAuswertungController();
-	private TableView<Quartal> tableView;
+	private TableView<QuartalOutput> tableView;
 
-
-	private Button checkList=new ModernButton("Checklist");
-	private Button neueAuswertung=new ModernButton("Neue Auswertung");
-	private Button offnen=new ModernButton("Öffnen");
-	private Button exportAlsExcel=new ModernButton("Export als Excel");
-	private Button abnahme=new ModernButton("Abnahme");
-
-	private final ObjectProperty<Quartal> selectedQuartal = new SimpleObjectProperty<>();
+	private Button checkList = new ModernButton("Checklist");
+	private Button neueAuswertung = new ModernButton("Neue Auswertung");
+	private Button offnen = new ModernButton("Öffnen");
+	private Button exportAlsExcel = new ModernButton("Export als Excel");
+	private Button abnahme = new ModernButton("Abnahme");
 
 	public MainView() throws SQLException {
 	}
 
-
 	public void show() throws SQLException {
-		Scene scene=createScene();
+		Scene scene = createScene();
 		scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 		ViewNavigator.switchViews(scene, "Main");
 	}
+
 	private Scene createScene() throws SQLException {
-		VBox mainBox=new VBox();
-		VBox tableBox=createMainVBox();
-		TableView<Quartal> tableView=getTableList();
-		mainBox.getChildren().addAll(tableBox,tableView);
-		initializeTableSelection();
-		return  new Scene(mainBox, Utilitie.APP_WIDH,Utilitie.APP_HEIGHT);
+		VBox mainBox = new VBox();
+		VBox tableBox = createMainVBox();
+
+		TableView<QuartalOutput> tableView = getTableList();
+		mainBox.getChildren().addAll(tableBox, tableView);
+
+		return new Scene(mainBox, Utilitie.APP_WIDH, Utilitie.APP_HEIGHT);
 	}
 
 	private VBox createMainVBox() {
+		checkList.setOnAction(e -> mainController.openChecklistPdf());
 
-		checkList.setOnAction(e-> mainController.openChecklistPdf());
+		HBox leftBox = new HBox(checkList);
+		offnen.setOnAction(e->openSelectedQuartal());
+		HBox rightBox = new HBox(10, neueAuswertung, offnen, exportAlsExcel, abnahme);
 
-		neueAuswertung.setOnAction(e -> {
-			try {
-				auswertungController.openForm();
-			} catch (SQLException ex) {
-				throw new RuntimeException(ex);
-			}
-		});
-
-		offnen.setOnAction(e-> {
-			try {
-				artikelController.openForm();
-			} catch (SQLException ex) {
-				throw new RuntimeException(ex);
-			}
-		});
-
-		HBox leftBox=new HBox(checkList);
-		HBox rightBox=new HBox(10,neueAuswertung,offnen,exportAlsExcel,abnahme);
-
-		// Region for spacing
 		Region spacer = new Region();
 		HBox.setHgrow(spacer, Priority.ALWAYS);
 
-		// Ana button call
 		HBox buttonBox = new HBox(10, leftBox, spacer, rightBox);
-		buttonBox.setAlignment(Pos.CENTER_LEFT);
 		buttonBox.setAlignment(Pos.CENTER);
 		return new VBox(15, buttonBox);
 	}
-	private TableView<Quartal> getTableList() throws SQLException {
-		tableView=new TableView<>();
-		tableView.setItems(QurtalDataRepo.getMainTable());
-		tableView.setPrefHeight(Utilitie.MAIN_TABLE_WIDTH);
-		tableView.setPrefWidth(Utilitie.MAIN_TABLE_HEIGHT);
+
+	private TableView<QuartalOutput> getTableList() throws SQLException {
+		tableView = new TableView<>();
+		ObservableList<QuartalOutput> mainTable = mainController.getMainTable();
+		tableView.setItems(mainTable);
+		tableView.setPrefHeight(Utilitie.MAIN_TABLE_HEIGHT);
+		tableView.setPrefWidth(Utilitie.MAIN_TABLE_WIDTH);
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
+		// Tablo kolonları
+		TableColumn<QuartalOutput, Integer> yearCol = new TableColumn<>("Jahr");
+		yearCol.setCellValueFactory(cellData ->
+				new SimpleIntegerProperty(cellData.getValue().getJahr()).asObject());
 
-		TableColumn<Quartal, Integer> idCol = new TableColumn<>("ID");
-		idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+		TableColumn<QuartalOutput, String> quartalCol = new TableColumn<>("Quartal");
+		quartalCol.setCellValueFactory(cellData ->
+				new SimpleStringProperty(cellData.getValue().getQuartal()));
 
-		TableColumn<Quartal, Integer> yearCol = new TableColumn<>("Jahr");
-		yearCol.setCellValueFactory(new PropertyValueFactory<>("jahr"));
+		TableColumn<QuartalOutput, String> statusCol = new TableColumn<>("Status");
+		statusCol.setCellValueFactory(cellData ->
+				new SimpleStringProperty(cellData.getValue().getStatus()));
 
-		TableColumn<Quartal, QuartalArt> quartalCol = new TableColumn<>("Quartal");
-		quartalCol.setCellValueFactory(new PropertyValueFactory<>("quartal"));
+		TableColumn<QuartalOutput, String> userCol = new TableColumn<>("AbnahmeBei");
+		userCol.setCellValueFactory(cellData ->
+				new SimpleStringProperty(cellData.getValue().getAbnahmeBei()));
 
-		TableColumn<Quartal, Status> statusCol = new TableColumn<>("Status");
-		statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
+		TableColumn<QuartalOutput, String> commentCol = new TableColumn<>("Kommentar");
+		commentCol.setCellValueFactory(cellData ->
+				new SimpleStringProperty(cellData.getValue().getKommentar()));
 
-		TableColumn<Quartal, String> userCol = new TableColumn<>("AbnahmeBei");
-		userCol.setCellValueFactory(new PropertyValueFactory<>("abnaheBei"));
+		tableView.getColumns().addAll(yearCol, quartalCol, statusCol, userCol, commentCol);
 
-		TableColumn<Quartal, String> commentCol = new TableColumn<>("Kommentar");
-		commentCol.setCellValueFactory(new PropertyValueFactory<>("kommentar"));
+		// CONTEXT MENU EKLE - BASIT VERSIYON
+		setupContextMenu();
 
-
-		tableView.getColumns().addAll(idCol, yearCol, quartalCol,statusCol, userCol, commentCol);
 		return tableView;
-
-	}
-	private void initializeTableSelection() {
-		// Einkauf tablosundan seçim dinle
-		tableView.getSelectionModel().selectedItemProperty().addListener(
-				(obs, oldSelection, newSelection) -> {
-					selectedQuartal.set(newSelection);
-					tableView.getSelectionModel().select(newSelection);
-				});
-
-			// Bearbeiten butonunu sadece seçili öğe varsa aktif et
-		offnen.disableProperty().bind(selectedQuartal.isNull());
-
 	}
 
+	// BASIT CONTEXT MENU METODU
+	private void setupContextMenu() {
+		// Context Menu oluştur
+		ContextMenu contextMenu = new ContextMenu();
 
+		// Sadece 2 menu item
+		MenuItem offnenItem = new MenuItem("Öffnen");
+		MenuItem abnahmeItem = new MenuItem("Abnahme");
+
+		// Tıklama olayları
+		offnenItem.setOnAction(e -> openSelectedQuartal());
+		abnahmeItem.setOnAction(e -> abnahmeSelectedQuartal());
+
+		// Menüye ekle
+		contextMenu.getItems().addAll(offnenItem, abnahmeItem);
+
+		// Tabloya context menu'yu bağla
+		tableView.setContextMenu(contextMenu);
+
+		// Sağ tıklamayı aktif et
+		tableView.setRowFactory(tv -> {
+			TableRow<QuartalOutput> row = new TableRow<>();
+
+			row.setOnMouseClicked(event -> {
+				if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
+					// Sağ tıklama - menüyü göster
+					contextMenu.show(tableView, event.getScreenX(), event.getScreenY());
+				}
+			});
+
+			return row;
+		});
+	}
+
+	// Öffnen butonu action
+	private void openSelectedQuartal() {
+		QuartalOutput selected = tableView.getSelectionModel().getSelectedItem();
+		if (selected != null) {
+			try {
+				artikelController.openForm(selected.getQuartalId());
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	// Abnahme butonu action
+	private void abnahmeSelectedQuartal() {
+		QuartalOutput selected = tableView.getSelectionModel().getSelectedItem();
+		if (selected != null) {
+			AlertUtil.showWarningAlert("Warnung","Abnahme: " + selected.getJahr() + " " + selected.getQuartal());
+
+		}
+	}
 }
