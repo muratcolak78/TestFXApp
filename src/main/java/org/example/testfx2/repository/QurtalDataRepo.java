@@ -49,7 +49,7 @@ public class QurtalDataRepo {
 				Quartal q = new Quartal(
 						rs.getInt("quartalId"),
 						rs.getInt("jahr"),
-						rs.getInt("quartalartId"),
+						rs.getInt("quartal"),
 						rs.getInt("statusId"),
 						rs.getString("abnahmeBei"),
 						rs.getString("kommentar")
@@ -71,7 +71,7 @@ public class QurtalDataRepo {
 		try {
 			for (Quartal quartal : quartalList) {
 				// Her quartal için quartalArt ve status isimlerini al
-				String quartalName = QuartalArtRepo.getQuartalName(conn, quartal.getQuartalartId());
+				String quartalName = setQuartalName(quartal.getQuartal());
 				String statusName = StatusRepo.getStatusName(conn, quartal.getStatusId());
 
 				// QuartalOutput objesi oluştur
@@ -112,4 +112,14 @@ public class QurtalDataRepo {
 			e.printStackTrace();
 		}
 	}
+	private static String setQuartalName(int id) {
+		return switch (id) {
+			case 1 -> "Q1";
+			case 2 -> "Q2";
+			case 3 -> "Q3";
+			case 4 -> "Q4";
+			default -> "Undefiniert Quartal";
+		};
+	}
+
 }

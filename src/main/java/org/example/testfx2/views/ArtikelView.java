@@ -16,6 +16,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.example.testfx2.controller.ArtikelController;
+import org.example.testfx2.controller.InventurController;
 import org.example.testfx2.model2.ArtikelOutput;
 import org.example.testfx2.utils.ModernButton;
 import org.example.testfx2.utils.Utilitie;
@@ -27,9 +28,7 @@ public class ArtikelView {
 
 	private ArtikelController artikelController=new ArtikelController();
 	private MainView mainView=new MainView();
-	private InventurListView inventurListView=new InventurListView();
-
-
+	private InventurController inventurController=new InventurController();
 	private TableView<ArtikelOutput> artikelEinkaufTable;
 	private TableView<ArtikelOutput> artikelVerkaufTable;
 
@@ -64,7 +63,6 @@ public class ArtikelView {
 		VBox mainBox = new VBox();
 		VBox artikelEinKaufVBox = createArtikelEinKaufVBox();
 
-		// Önce tabloları oluştur
 		artikelEinkaufTable = getTableArtikelEinkauf();
 		artikelVerkaufTable = getTableArtikelVerkauf();
 		// Tabloları doldur
@@ -91,7 +89,7 @@ public class ArtikelView {
 
 		exportAsPdf.setOnAction(e->artikelController.exportAsPdf());
 
-		bearbeiten.setOnAction(e->artikelController.bearbeiten());
+		bearbeiten.setOnAction(e->bearbeitenSelectedArtikel());
 
 
 
@@ -119,7 +117,7 @@ public class ArtikelView {
 
 		exportAsPdf2.setOnAction(e->artikelController.exportAsPdf());
 
-		bearbeiten2.setOnAction(e->artikelController.bearbeiten());
+		bearbeiten2.setOnAction(e->bearbeitenSelectedArtikel());
 
 		HBox rightBox=new HBox(10,Import2,exportAsPdf2, bearbeiten2);
 		// Region for spacing
@@ -146,7 +144,7 @@ public class ArtikelView {
 
 		weiter.setOnAction(e-> {
 			try {
-				inventurListView.show();
+				inventurController.openForm(selectedQuartalId);
 			} catch (SQLException ex) {
 				throw new RuntimeException(ex);
 			}
@@ -215,22 +213,26 @@ public class ArtikelView {
 	}
 
 	private void initializeTableSelection() {
-		// Einkauf tablosundan seçim dinle
 		artikelEinkaufTable.getSelectionModel().selectedItemProperty().addListener(
-				(obs, oldSelection, newSelection) -> {
-					selectedArtikel.set(newSelection);
-					artikelVerkaufTable.getSelectionModel().select(newSelection);
-				});
+				(obs, oldSelection, newSelection) -> selectedArtikel.set(newSelection)
+		);
 
-		// Verkauf tablosundan seçim dinle
 		artikelVerkaufTable.getSelectionModel().selectedItemProperty().addListener(
-				(obs, oldSelection, newSelection) -> {
-					selectedArtikel.set(newSelection);
-					artikelEinkaufTable.getSelectionModel().select(newSelection);
-				});
+				(obs, oldSelection, newSelection) -> selectedArtikel.set(newSelection)
+		);
 
-		// Bearbeiten butonunu sadece seçili öğe varsa aktif et
 		bearbeiten.disableProperty().bind(selectedArtikel.isNull());
 		bearbeiten2.disableProperty().bind(selectedArtikel.isNull());
 	}
+	private void bearbeitenSelectedArtikel() {
+		ArtikelOutput artikel = selectedArtikel.get();
+		if (artikel != null) {
+			System.out.println("Bearbeiten: " + artikel.getName() + " (ID: " + artikel.getArtikelId() + ")");
+			// Burada düzenleme ekranı açılabilir veya controller'a gönderilebilir
+			artikelController.bearbeitenArtikel(artikel);
+		} else {
+			System.out.println("Hiçbir ürün seçilmedi.");
+		}
+	}
+
 }

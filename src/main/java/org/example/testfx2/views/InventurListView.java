@@ -1,19 +1,22 @@
 package org.example.testfx2.views;
 
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import org.example.testfx2.model.Inventur;
+import org.example.testfx2.controller.InventurController;
 import org.example.testfx2.model.InventurArtikel;
-import org.example.testfx2.model.Standort;
+import org.example.testfx2.model2.ArtikelDetailStandort;
+import org.example.testfx2.model2.InventurOutput;
+import org.example.testfx2.model2.QuartalOutput;
+import org.example.testfx2.model2.Standort;
 import org.example.testfx2.repository.*;
 import org.example.testfx2.utils.AlertUtil;
 import org.example.testfx2.utils.ModernButton;
@@ -28,32 +31,35 @@ import javafx.geometry.Insets;
 public class InventurListView {
 
     private TauschkontoView tauschkontoView=new TauschkontoView();
-
-    private TableView<Inventur> inventurTable;
+    private InventurController inventurController=new InventurController();
+    private TableView<InventurOutput> table = new TableView<>();
     private TableView<InventurArtikel> inventurArtikelTable;
     private Button abbrechenButton = new ModernButton("Abbrechen");
     private Button sichernButton = new ModernButton("Sichern");
     private Button weiterButton = new ModernButton("Weiter");
+    private VBox inventurDetailsBox = new VBox();
 
-    private final ObjectProperty<Inventur> selectedInventur = new SimpleObjectProperty<>();
+    private final ObjectProperty<InventurOutput> selectedInventur = new SimpleObjectProperty<>();
 
     private final  Label detailsLabel = new Label("Inventur details");
+    private int selectedQuartalId;
 
 	public InventurListView() throws SQLException {
 	}
 
-	public void show() throws SQLException {
+	public void show(int selectedQuartalId) throws SQLException {
+        this.selectedQuartalId=selectedQuartalId;
         Scene scene = createScene();
         scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         ViewNavigator.switchViews(scene,"Inventur");
+
     }
 
     private Scene createScene() throws SQLException {
         VBox mainBox = new VBox(20);
         mainBox.setPadding(new Insets(20));
-
+        //initializeTableSelection();
         VBox inventurListBox=createInventurListBox();
-        VBox inventurDetailsBox=createinventurDetailsBox();
         HBox downHbox=createDownHbox();
 
         mainBox.getChildren().addAll(inventurListBox, inventurDetailsBox, downHbox);
@@ -72,7 +78,7 @@ public class InventurListView {
             }
         });
 
-        sichernButton.setOnAction(e -> saveInventur());
+       // sichernButton.setOnAction(e -> saveInventur());
         weiterButton.setOnAction(e-> {
 	        try {
 		        tauschkontoView.show();
@@ -89,237 +95,97 @@ public class InventurListView {
         VBox vBox=new VBox();
         vBox.setPrefHeight(300);
         Label inventurLabel = new Label("Inventurliste");
-        inventurTable = createInventurTable();
-        vBox.getChildren().addAll(inventurLabel,inventurTable);
+        TableView<InventurOutput> inventurOutputTableView=createInventurTable();
+        vBox.getChildren().addAll(inventurLabel, inventurOutputTableView);
         return vBox;
     }
-    private VBox createinventurDetailsBox() {
+    private VBox createinventurDetailsBox(String standort) {
         VBox vBox=new VBox();
         Label detailsLabel = new Label("Inventur details");
-        inventurArtikelTable = createInventurArtikelTable();
-        vBox.getChildren().addAll(detailsLabel,inventurArtikelTable);
+        TableView<ArtikelDetailStandort> table=createInventurArtikelTable(standort);
+        vBox.getChildren().addAll(detailsLabel, table);
         return vBox;
     }
 
-    private TableView<Inventur> createInventurTable() throws SQLException {
-        TableView<Inventur> table = new TableView<>();
-        table.setItems(InventurRepo.getInventurObservableList());
+    private TableView<InventurOutput> createInventurTable() throws SQLException {
+        ObservableList<InventurOutput> getInventurObservableList=inventurController.getInventuroutputList(selectedQuartalId);
+
+        table.setItems(getInventurObservableList);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        System.out.println(table.getItems().size());
 
-        TableColumn<Inventur, String> standortCol = new TableColumn<>("Standort");
-        standortCol.setCellValueFactory(cellData -> {
-            try {
-                int standortId = cellData.getValue().getStandortId();
-                String standortName = StandortRepo.getStandortNameByIdSafe(standortId);
-                return new SimpleStringProperty(standortName);
-            } catch (Exception e) {
-                return new SimpleStringProperty("Error");
-            }
-        });
+        TableColumn<InventurOutput, String> standortCol = new TableColumn<>("Standort");
+        standortCol.setCellValueFactory(new PropertyValueFactory<>("standort"));
 
-        TableColumn<Inventur, String> statusCol = new TableColumn<>("Status");
+
+        TableColumn<InventurOutput, String> statusCol = new TableColumn<>("Status");
         statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
 
-        TableColumn<Inventur, String> abgabeDatumCol = new TableColumn<>("Abgabe");
+        TableColumn<InventurOutput, String> abgabePersonCol = new TableColumn<>("Abgabe Person");
+        abgabePersonCol.setCellValueFactory(new PropertyValueFactory<>("abgabeBei"));
+
+        TableColumn<InventurOutput, String> abgabeDatumCol = new TableColumn<>("Abgabe Datum");
         abgabeDatumCol.setCellValueFactory(new PropertyValueFactory<>("abgabeDatum"));
 
-        TableColumn<Inventur, String> abgabePersonCol = new TableColumn<>("Abgabe Person");
-        abgabePersonCol.setCellValueFactory(cellData -> {
-            int personalId = cellData.getValue().getAbgabePerson();
-            String abgabePersonName = UsersRepo.getUserById(personalId);
-            return new SimpleStringProperty(abgabePersonName);
-        });
+        TableColumn<InventurOutput, String> abnahmePersonCol = new TableColumn<>("Abnahme Person");
+        abnahmePersonCol.setCellValueFactory(new PropertyValueFactory<>("abnahmeBei"));
 
-        TableColumn<Inventur, String> abnahmeDatumCol = new TableColumn<>("Abnahme Datum");
-        abnahmeDatumCol.setCellValueFactory(new PropertyValueFactory<>("abnahmeDatum"));
+        TableColumn<InventurOutput, Double> summeGueterCol = new TableColumn<>("Summe Gitterbox");
+        summeGueterCol.setCellValueFactory(new PropertyValueFactory<>("summeGitterBoxPreis"));
 
-        TableColumn<Inventur, String> abnahmePersonCol = new TableColumn<>("Abnahme Person");
-        abnahmePersonCol.setCellValueFactory(cellData -> {
-            int personalId = cellData.getValue().getAbnahmePerson();
-            String abbahmePersonName = UsersRepo.getUserById(personalId);
-            return new SimpleStringProperty(abbahmePersonName);
-        });
+        TableColumn<InventurOutput, Double> summePalettenCol = new TableColumn<>("Summe Pale");
+        summePalettenCol.setCellValueFactory(new PropertyValueFactory<>("summePalepreis"));
 
-        TableColumn<Inventur, Double> summeGueterCol = new TableColumn<>("Summe Gitterb");
-        summeGueterCol.setCellValueFactory(new PropertyValueFactory<>("summeGueter"));
-        summeGueterCol.setCellFactory(column -> new TableCell<Inventur, Double>() {
-            @Override
-            protected void updateItem(Double item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(String.format("%,.3f €", item));
-                }
-            }
-        });
-
-        TableColumn<Inventur, Integer> summePalettenCol = new TableColumn<>("Summe Pale");
-        summePalettenCol.setCellValueFactory(new PropertyValueFactory<>("summePaletten"));
-        summePalettenCol.setCellFactory(column -> new TableCell<Inventur, Integer>() {
-            @Override
-            protected void updateItem(Integer item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(String.format("%,d €", item));
-                }
-            }
-        });
-
-        TableColumn<Inventur, Double> summeCol = new TableColumn<>("Summe");
-        summeCol.setCellValueFactory(cellData -> {
-            Inventur inventur = cellData.getValue();
-            double summe = inventur.getSummeGueter() + inventur.getSummePaletten();
-            return new SimpleDoubleProperty(summe).asObject();
-        });
-        summeCol.setCellFactory(column -> new TableCell<Inventur, Double>() {
-            @Override
-            protected void updateItem(Double item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(String.format("%,.3f €", item));
-                }
-            }
-        });
+        TableColumn<InventurOutput, Double> summeCol = new TableColumn<>("Summe");
+        summeCol.setCellValueFactory(new PropertyValueFactory<>("summe"));
 
         table.getColumns().addAll(standortCol, statusCol, abgabePersonCol, abgabeDatumCol,
                 abnahmePersonCol, summeGueterCol, summePalettenCol, summeCol);
 
-        // Selection listener
-        table.getSelectionModel().selectedItemProperty().addListener(
-                (obs, oldSelection, newSelection) -> {
-                    selectedInventur.set(newSelection);
-                    if (newSelection != null) {
-                        // Başlığı güncelle: "Inventur details von [StandortName]"
-                        try {
-                            int standortId = newSelection.getStandortId();
-                            Standort standort = StandortRepo.getStandortObservableList().stream()
-                                    .filter(s -> s.getId() == standortId)
-                                    .findFirst()
-                                    .orElse(null);
-
-                            if (standort != null) {
-                                detailsLabel.setText("Inventur details von " + standort.getName() + " (selektiert)");
-                            } else {
-                                detailsLabel.setText("Inventur details");
-                            }
-                        } catch (SQLException e) {
-                            detailsLabel.setText("Inventur details");
-                        }
-
-                        loadInventurArtikel(newSelection.getId());
-                    } else {
-                        detailsLabel.setText("Inventur details");
-                        inventurArtikelTable.setItems(FXCollections.observableArrayList());
-                    }
-                });
+        table.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 1) { // çift tıklama
+                openSelectedQuartal();
+            }
+        });
 
         return table;
     }
 
-    private TableView<InventurArtikel> createInventurArtikelTable() {
-       TableView<InventurArtikel> table = new TableView<>();
-      /*   table.setPrefHeight(200);
+
+    private void openSelectedQuartal() {
+        InventurOutput selected = table.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            String standort = selected.getStandort();
+            VBox newDetailsBox = createinventurDetailsBox(standort);
+            inventurDetailsBox.getChildren().setAll(newDetailsBox.getChildren());
+        }
+    }
+
+    private TableView<ArtikelDetailStandort> createInventurArtikelTable(String selected) {
+        ObservableList<ArtikelDetailStandort> detailStandortObservableList= inventurController.getArtikelListWithSelectedStandort(selectedQuartalId,selected);
+        TableView<ArtikelDetailStandort> table = new TableView<>();
+        table.setItems(detailStandortObservableList);
+        table.setPrefHeight(200);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        TableColumn<InventurArtikel, String> nameCol = new TableColumn<>("Name");
-        nameCol.setCellValueFactory(cellData -> {
-            try {
-                int artikelId = cellData.getValue().getArtikelId();
-                Artikel artikel = ArtikelRepo.getArtikelObservableList().stream()
-                        .filter(a -> a.getArtikelId() == artikelId)
-                        .findFirst()
-                        .orElse(null);
-                return new SimpleStringProperty(artikel != null ? artikel.getArtikelName() : "");
-            } catch (SQLException e) {
-                return new SimpleStringProperty("");
-            }
-        });
+        TableColumn<ArtikelDetailStandort, String> nameCol = new TableColumn<>("Name");
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
 
-        TableColumn<InventurArtikel, String> statusCol = new TableColumn<>("Status");
-        statusCol.setCellValueFactory(cellData -> {
-            Inventur inventur = selectedInventur.get();
-            return new SimpleStringProperty(inventur != null ? inventur.getStatus() : "");
-        });
+        TableColumn<ArtikelDetailStandort, String> statusCol = new TableColumn<>("Status");
+        statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
 
-        TableColumn<InventurArtikel, String> typeCol = new TableColumn<>("Type");
-        typeCol.setCellValueFactory(cellData -> {
-            try {
-                int artikelId = cellData.getValue().getArtikelId();
-                Artikel artikel = ArtikelRepo.getArtikelObservableList().stream()
-                        .filter(a -> a.getId() == artikelId)
-                        .findFirst()
-                        .orElse(null);
+        TableColumn<ArtikelDetailStandort, String> typeCol = new TableColumn<>("Type");
+        typeCol.setCellValueFactory(new PropertyValueFactory<>("type"));
 
-                String type = "";
-                if (artikel != null) {
-                    // Hier müsste die Logik für den Typ basierend auf artikelType implementiert werden
-                    type = artikel.getArtikelType() == 1 ? "Gitterbox" : "Paletten";
-                }
-                return new SimpleStringProperty(type);
-            } catch (SQLException e) {
-                return new SimpleStringProperty("");
-            }
-        });
-
-        TableColumn<InventurArtikel, Double> summeCol = new TableColumn<>("Summe");
-        summeCol.setCellValueFactory(new PropertyValueFactory<>("gesamtwert"));
-        summeCol.setCellFactory(column -> new TableCell<InventurArtikel, Double>() {
-            @Override
-            protected void updateItem(Double item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(String.format("%.0f€", item));
-                }
-            }
-        });
+        TableColumn<ArtikelDetailStandort, Double> summeCol = new TableColumn<>("Summe");
+        summeCol.setCellValueFactory(new PropertyValueFactory<>("summe"));
 
         table.getColumns().addAll(nameCol, statusCol, typeCol, summeCol);
-*/
+
         return table;
     }
 
-    private void loadInventurArtikel(int inventurId) {
-        try {
-            List<InventurArtikel> inventurArtikel = InventurArtikelRepo.getInventurArtikelByInventur(inventurId);
-            inventurArtikelTable.setItems(FXCollections.observableArrayList(inventurArtikel));
-        } catch (Exception e) {
-            e.printStackTrace();
-            AlertUtil.showErrorAlert("Fehler", "Fehler beim Laden der Inventur-Artikel");
-            inventurArtikelTable.setItems(FXCollections.observableArrayList());
-        }
-    }
 
-    private void saveInventur() {
-        // Speichern der aktuellen Inventur
-        Inventur selected = selectedInventur.get();
-        if (selected != null) {
-            try {
-                InventurRepo.updateInventur(selected);
 
-                // Speichern der Artikel
-                for (InventurArtikel artikel : inventurArtikelTable.getItems()) {
-                    InventurArtikelRepo.updateInventurArtikel(artikel);
-                }
-
-                AlertUtil.showSuccessAlert("Erfolg", "Inventur erfolgreich gespeichert");
-            } catch (Exception e) {
-                e.printStackTrace();
-                AlertUtil.showErrorAlert("Fehler", "Fehler beim Speichern der Inventur");
-            }
-        } else {
-            AlertUtil.showWarningAlert("Warnung", "Bitte wählen Sie eine Inventur aus");
-        }
-    }
-
-    private void showNextView() {
-        // Logik für die nächste Ansicht
-        AlertUtil.showInfoAlert("Info", "Weiter-Button wurde geklickt");
-    }
 }
+

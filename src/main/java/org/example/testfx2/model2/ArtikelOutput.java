@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 public class ArtikelOutput {
 
 		private int artikelId;
+		private int quartalId;
 		private String name;
 		private double einkaufPreis;
 		private double verkaufPreis;
 		private String artikelGroup;
 		private String artikelType;
-
 
 }

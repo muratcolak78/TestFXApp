@@ -13,7 +13,7 @@ import lombok.ToString;
 public class Quartal {
     private Integer quartalId;
     private Integer jahr;
-    private Integer quartalartId;
+    private Integer quartal;
     private Integer statusId;
     private String abnahmeBei;
     private String kommentar;
