@@ -2,18 +2,21 @@ package org.example.testfx2.repository;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.example.testfx2.bean.SessionData;
 import org.example.testfx2.db.Database;
-import org.example.testfx2.model.KundeSaldo;
+import org.example.testfx2.model2.KundeSaldo;
 import org.example.testfx2.model.Tauschkonto;
-import org.example.testfx2.model.TauschkontoUebersicht;
+import org.example.testfx2.model2.TauschkontoUebersicht;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TauschkontoRepo {
+
     private static ObservableList<Tauschkonto> tauschkontenObservableList;
-    
+    private static Connection conn=Database.connect();
+
     public static ObservableList<Tauschkonto> getTauschkontenObservableList() throws SQLException {
         if (tauschkontenObservableList == null) {
             refreshData();
@@ -86,24 +89,25 @@ public class TauschkontoRepo {
     public static List<KundeSaldo> getKundenMitSaldos() {
         List<KundeSaldo> list = new ArrayList<>();
         String sql = """
-        SELECT k.name as kunde_name, 
-               SUM(tk.saldo) as gesamt_saldo,
-               MAX(tk.status) as kunde_status
-        FROM tauschkonten tk
-        JOIN kunden k ON tk.kunde_id = k.id
-        GROUP BY k.id, k.name
-        ORDER BY k.name
+                SELECT
+                    k.name AS Kunde,
+                    SUM(tk.menge) AS Saldo
+                FROM TAUSCHKONTEN tk
+                JOIN kunde k ON k.kundenId = tk.kundenId
+                WHERE tk.quartalId = ?
+                GROUP BY k.name;
         """;
 
-        try (Connection conn = Database.connect();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
+            pstmt.setInt(1, SessionData.getInstance().getSelectedQuartalId());
+
+            ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 KundeSaldo kundeSaldo = new KundeSaldo(
-                        rs.getString("kunde_name"),
-                        rs.getInt("gesamt_saldo"),
-                        rs.getString("kunde_status")
+                        rs.getString("Kunde"),
+                        rs.getInt("Saldo"),
+                        "Test Status"
                 );
                 list.add(kundeSaldo);
             }
@@ -112,23 +116,32 @@ public class TauschkontoRepo {
         }
         return list;
     }
+    public static ObservableList<KundeSaldo> getKundeTauschkontoList(){
+        return FXCollections.observableArrayList(getKundenMitSaldos());
+    }
 
-    // Tauschkonto özeti için güncellenmiş metot
-    public static List<TauschkontoUebersicht> getTauschkontoUebersicht() {
+    private  static List<TauschkontoUebersicht> getTauschkontoUebersicht() {
+
         List<TauschkontoUebersicht> list = new ArrayList<>();
         String sql = """
-        SELECT ta.art_name as art, 
-               SUM(tk.saldo) as saldo,
-               SUM(tk.saldo * 12.0) as summe  -- Örnek hesaplama
-        FROM tauschkonten tk
-        JOIN tauschkonto_arten ta ON tk.art_id = ta.id
-        GROUP BY ta.art_name
-        ORDER BY ta.art_name
+                SELECT
+                                        t.name AS ART,
+                                        SUM(tk.menge) AS Saldo,
+                                        SUM(tk.menge * ap.verkaufspreis) AS Summe
+                                    FROM TAUSCHKONTEN tk
+                                    JOIN ARTIKEL a ON tk.artikelId = a.artikelId
+                                    JOIN ARTIKELGROUP ag ON a.artikelGroupId = ag.artikelGroupId
+                                    JOIN type t ON ag.typeId = t.typeId
+                                    JOIN ArtikelPreis ap ON a.artikelId = ap.artikelId
+                                    WHERE tk.quartalId = ?
+                                    GROUP BY t.name;
         """;
 
-        try (Connection conn = Database.connect();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, SessionData.getInstance().getSelectedQuartalId());
+
+            ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
                 TauschkontoUebersicht uebersicht = new TauschkontoUebersicht(
@@ -143,4 +156,7 @@ public class TauschkontoRepo {
         }
         return list;
     }
-}
+    public static ObservableList<TauschkontoUebersicht> getTauschUbersichtList(){
+        return  FXCollections.observableArrayList(getTauschkontoUebersicht());
+        }
+    }

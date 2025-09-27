@@ -14,10 +14,9 @@ import java.sql.SQLException;
 public class ArtikelController {
 
 
+	public void openForm() throws SQLException {
 
-	public void openForm(int selectedQuartalId) throws SQLException {
-
-		new ArtikelView(selectedQuartalId).show();
+		new ArtikelView().show();
 		
 	}
 
@@ -27,11 +26,12 @@ public class ArtikelController {
 	public void exportAsPdf() {
 	}
 
-	public ObservableList<ArtikelOutput> getArtikelTable(int selectedQuartalId) throws SQLException {
-		return ArtikelRepo.getArtikelObservableList(selectedQuartalId);
+	public ObservableList<ArtikelOutput> getArtikelTable() throws SQLException {
+		return ArtikelRepo.getArtikelObservableList();
 	}
 
 	public void bearbeitenArtikel(ArtikelOutput artikel) {
 		AlertUtil.showInfoAlert("selected artikel info", artikel.toString());
 	}
+
 }

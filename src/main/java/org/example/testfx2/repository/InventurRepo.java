@@ -2,8 +2,8 @@ package org.example.testfx2.repository;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.example.testfx2.bean.SessionData;
 import org.example.testfx2.db.Database;
-import org.example.testfx2.model2.Inventur;
 import org.example.testfx2.model2.InventurOutput;
 import org.example.testfx2.utils.AlertUtil;
 
@@ -16,15 +16,15 @@ public class InventurRepo {
 	private static Connection conn=Database.connect();
 	private static ObservableList<InventurOutput> inventurObservableList;
 
-	public static ObservableList<InventurOutput> getInventurObservableList(int quartalId) throws SQLException {
+	public static ObservableList<InventurOutput> getInventurObservableList() throws SQLException {
 
-			refreshData(quartalId);
+			refreshData();
 
 		return inventurObservableList;
 	}
 
-	public static void refreshData(int quartalId) throws SQLException {
-		List<InventurOutput> outputList=getOutputListFromInventuren(quartalId);
+	public static void refreshData() throws SQLException {
+		List<InventurOutput> outputList=getOutputListFromInventuren();
 		if (inventurObservableList == null) {
 			inventurObservableList = FXCollections.observableArrayList(outputList);
 		} else {
@@ -32,7 +32,7 @@ public class InventurRepo {
 		}
 	}
 
-	private static List<InventurOutput> getOutputListFromInventuren(int quartalId) throws SQLException {
+	private static List<InventurOutput> getOutputListFromInventuren() throws SQLException {
 		List<InventurOutput> list = new ArrayList<>();
 		String sql = """
 				
@@ -70,7 +70,7 @@ public class InventurRepo {
 				""";
 
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setInt(1, quartalId);
+			pstmt.setInt(1, SessionData.getInstance().getSelectedQuartalId());
 
 			ResultSet rs = pstmt.executeQuery();
 
@@ -96,32 +96,7 @@ public class InventurRepo {
 
 	}
 
-	public static List<Inventur> getAllFromSelectedInventuren(int quartalId) {
-		List<Inventur> list = new ArrayList<>();
-		String sql = "SELECT * FROM inventuren where quartalId=? ";
 
-		try (Statement stmt = conn.createStatement();
-		     ResultSet rs = stmt.executeQuery(sql)) {
-
-			while (rs.next()) {
-				Inventur inventur = new Inventur(
-						rs.getInt("inventurId"),
-						rs.getInt("quartalId"),
-						rs.getInt("standortId"),
-						rs.getInt("artikelId"),
-						rs.getInt("menge"),
-						rs.getString("abnahmeBei"),
-						rs.getInt("status")
-				);
-				list.add(inventur);
-			}
-			list.forEach(a-> System.out.println(a));
-		} catch (SQLException e) {
-			e.printStackTrace();
-			AlertUtil.showErrorAlert("Fehler", "Fehler beim Laden der Inventuren");
-		}
-		return list;
-	}
 
 
 

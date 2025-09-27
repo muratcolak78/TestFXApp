@@ -3,8 +3,8 @@ package org.example.testfx2.controller;
 import javafx.collections.ObservableList;
 import org.example.testfx2.model2.QuartalOutput;
 import org.example.testfx2.repository.QurtalDataRepo;
-import org.example.testfx2.service.QuartalService;
 import org.example.testfx2.utils.AlertUtil;
+import org.example.testfx2.views.MainView;
 
 import java.awt.*;
 import java.io.File;
@@ -12,14 +12,11 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 public class MainController {
-    private final QuartalService quartalService;
-    //private final ObservableList<Quartal> quartalList;
 
-    public MainController(QuartalService quartalService) throws SQLException {
-        this.quartalService = quartalService;
-       // this.quartalList = quartalService.getAllQuartals();
+
+    public void openForm() throws SQLException {
+        new MainView().show();
     }
-
     public void openChecklistPdf() {
         try {
             File pdfFile = new File("src/main/resources/docs/checklist.pdf");
@@ -37,7 +34,6 @@ public class MainController {
     public ObservableList<QuartalOutput> getMainTable() throws SQLException {
         return QurtalDataRepo.getMainTable();
     }
-    public void openForm(QuartalOutput selected){
-        AlertUtil.showSuccessAlert("Erfolg", "Form wurde eröffnet"+selected);
-    }
+
+
 }

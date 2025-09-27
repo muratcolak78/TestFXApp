@@ -2,8 +2,6 @@ package org.example.testfx2.views;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -12,34 +10,29 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.example.testfx2.controller.InventurController;
+import org.example.testfx2.controller.NavigationManager;
 import org.example.testfx2.model.InventurArtikel;
 import org.example.testfx2.model2.ArtikelDetailStandort;
 import org.example.testfx2.model2.InventurOutput;
-import org.example.testfx2.model2.QuartalOutput;
-import org.example.testfx2.model2.Standort;
-import org.example.testfx2.repository.*;
-import org.example.testfx2.utils.AlertUtil;
 import org.example.testfx2.utils.ModernButton;
 import org.example.testfx2.utils.Utilitie;
 import org.example.testfx2.utils.ViewNavigator;
 
 import java.sql.SQLException;
-import java.util.List;
 
 import javafx.geometry.Insets;
 
 public class InventurListView {
 
-    private TauschkontoView tauschkontoView=new TauschkontoView();
-    private InventurController inventurController=new InventurController();
     private TableView<InventurOutput> table = new TableView<>();
     private TableView<InventurArtikel> inventurArtikelTable;
+
     private Button abbrechenButton = new ModernButton("Abbrechen");
     private Button sichernButton = new ModernButton("Sichern");
     private Button weiterButton = new ModernButton("Weiter");
     private VBox inventurDetailsBox = new VBox();
 
-    private final ObjectProperty<InventurOutput> selectedInventur = new SimpleObjectProperty<>();
+    //private final ObjectProperty<InventurOutput> selectedInventur = new SimpleObjectProperty<>();
 
     private final  Label detailsLabel = new Label("Inventur details");
     private int selectedQuartalId;
@@ -47,8 +40,8 @@ public class InventurListView {
 	public InventurListView() throws SQLException {
 	}
 
-	public void show(int selectedQuartalId) throws SQLException {
-        this.selectedQuartalId=selectedQuartalId;
+	public void show() throws SQLException {
+
         Scene scene = createScene();
         scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         ViewNavigator.switchViews(scene,"Inventur");
@@ -72,7 +65,7 @@ public class InventurListView {
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
         abbrechenButton.setOnAction(e -> {
             try {
-                new MainView().show();
+                NavigationManager.getInstance().openMainView();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
@@ -81,7 +74,7 @@ public class InventurListView {
        // sichernButton.setOnAction(e -> saveInventur());
         weiterButton.setOnAction(e-> {
 	        try {
-		        tauschkontoView.show();
+                NavigationManager.getInstance().openTauschForm();
 	        } catch (SQLException ex) {
 		        throw new RuntimeException(ex);
 	        }
@@ -108,7 +101,7 @@ public class InventurListView {
     }
 
     private TableView<InventurOutput> createInventurTable() throws SQLException {
-        ObservableList<InventurOutput> getInventurObservableList=inventurController.getInventuroutputList(selectedQuartalId);
+        ObservableList<InventurOutput> getInventurObservableList=NavigationManager.getInstance().getInventuroutputList();
 
         table.setItems(getInventurObservableList);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -162,7 +155,7 @@ public class InventurListView {
     }
 
     private TableView<ArtikelDetailStandort> createInventurArtikelTable(String selected) {
-        ObservableList<ArtikelDetailStandort> detailStandortObservableList= inventurController.getArtikelListWithSelectedStandort(selectedQuartalId,selected);
+        ObservableList<ArtikelDetailStandort> detailStandortObservableList= NavigationManager.getInstance().getArtikelListWithSelectedStandort(selected);
         TableView<ArtikelDetailStandort> table = new TableView<>();
         table.setItems(detailStandortObservableList);
         table.setPrefHeight(200);

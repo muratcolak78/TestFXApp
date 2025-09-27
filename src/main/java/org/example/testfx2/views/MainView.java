@@ -11,11 +11,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import org.example.testfx2.controller.ArtikelController;
+import org.example.testfx2.bean.SessionData;
 import org.example.testfx2.controller.MainController;
-import org.example.testfx2.controller.NeueAuswertungController;
+import org.example.testfx2.controller.NavigationManager;
 import org.example.testfx2.model2.QuartalOutput;
-import org.example.testfx2.service.QuartalService;
 import org.example.testfx2.utils.AlertUtil;
 import org.example.testfx2.utils.ModernButton;
 import org.example.testfx2.utils.Utilitie;
@@ -23,10 +22,8 @@ import org.example.testfx2.utils.ViewNavigator;
 
 import java.sql.SQLException;
 public class MainView {
-	private QuartalService service = new QuartalService();
-	private MainController mainController = new MainController(service);
-	private ArtikelController artikelController = new ArtikelController();
-	private NeueAuswertungController auswertungController = new NeueAuswertungController();
+
+
 	private TableView<QuartalOutput> tableView;
 
 	private Button checkList = new ModernButton("Checklist");
@@ -34,6 +31,7 @@ public class MainView {
 	private Button offnen = new ModernButton("Öffnen");
 	private Button exportAlsExcel = new ModernButton("Export als Excel");
 	private Button abnahme = new ModernButton("Abnahme");
+	private int selectedId=0;
 
 	public MainView() throws SQLException {
 	}
@@ -55,10 +53,16 @@ public class MainView {
 	}
 
 	private VBox createMainVBox() {
-		checkList.setOnAction(e -> mainController.openChecklistPdf());
+		checkList.setOnAction(e -> NavigationManager.getInstance().openChecklistPdf());
 
 		HBox leftBox = new HBox(checkList);
-		offnen.setOnAction(e->openSelectedQuartal());
+		offnen.setOnAction(e-> {
+			try {
+				openSelectedQuartal();
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		});
 		HBox rightBox = new HBox(10, neueAuswertung, offnen, exportAlsExcel, abnahme);
 
 		Region spacer = new Region();
@@ -71,7 +75,7 @@ public class MainView {
 
 	private TableView<QuartalOutput> getTableList() throws SQLException {
 		tableView = new TableView<>();
-		ObservableList<QuartalOutput> mainTable = mainController.getMainTable();
+		ObservableList<QuartalOutput> mainTable = NavigationManager.getInstance().getMainTable();
 		tableView.setItems(mainTable);
 		tableView.setPrefHeight(Utilitie.MAIN_TABLE_HEIGHT);
 		tableView.setPrefWidth(Utilitie.MAIN_TABLE_WIDTH);
@@ -116,7 +120,13 @@ public class MainView {
 		MenuItem abnahmeItem = new MenuItem("Abnahme");
 
 		// Tıklama olayları
-		offnenItem.setOnAction(e -> openSelectedQuartal());
+		offnenItem.setOnAction(e -> {
+			try {
+				openSelectedQuartal();
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		});
 		abnahmeItem.setOnAction(e -> abnahmeSelectedQuartal());
 
 		// Menüye ekle
@@ -141,14 +151,15 @@ public class MainView {
 	}
 
 	// Öffnen butonu action
-	private void openSelectedQuartal() {
+	private void openSelectedQuartal() throws SQLException {
 		QuartalOutput selected = tableView.getSelectionModel().getSelectedItem();
+		System.out.println("selected id önceki : "+selected.getQuartalId());
+
+		SessionData.getInstance().setSelectedQuartalId(selected.getQuartalId());
+		System.out.println("selected id sonra ki: "+selected.getQuartalId());
+		selectedId=SessionData.getInstance().getSelectedQuartalId();
 		if (selected != null) {
-			try {
-				artikelController.openForm(selected.getQuartalId());
-			} catch (SQLException ex) {
-				ex.printStackTrace();
-			}
+			NavigationManager.getInstance().openSelectedQuartalForm();
 		}
 	}
 

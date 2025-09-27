@@ -4,8 +4,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.example.testfx2.db.Database;
 import org.example.testfx2.model.Kunde;
-import org.example.testfx2.model.Tauschkonto;
-import org.example.testfx2.model.TauschkontoUebersicht;
 
 import java.sql.*;
 import java.util.ArrayList;

@@ -15,8 +15,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import org.example.testfx2.controller.ArtikelController;
-import org.example.testfx2.controller.InventurController;
+import org.example.testfx2.bean.SessionData;
+import org.example.testfx2.controller.NavigationManager;
 import org.example.testfx2.model2.ArtikelOutput;
 import org.example.testfx2.utils.ModernButton;
 import org.example.testfx2.utils.Utilitie;
@@ -26,9 +26,8 @@ import java.sql.SQLException;
 
 public class ArtikelView {
 
-	private ArtikelController artikelController=new ArtikelController();
-	private MainView mainView=new MainView();
-	private InventurController inventurController=new InventurController();
+	//private ArtikelController artikelController=new ArtikelController();
+
 	private TableView<ArtikelOutput> artikelEinkaufTable;
 	private TableView<ArtikelOutput> artikelVerkaufTable;
 
@@ -46,13 +45,9 @@ public class ArtikelView {
 	private Button sichern =new ModernButton("Sichern");
 	private Button weiter =new ModernButton("Weiter");
 
-	private int selectedQuartalId;
+	private int selectedQuartalId = SessionData.getInstance().getSelectedQuartalId();
 
 	private final ObjectProperty<ArtikelOutput> selectedArtikel = new SimpleObjectProperty<>();
-
-	public ArtikelView(int selected) throws SQLException {
-		this.selectedQuartalId=selected;
-	}
 
 	public void show() throws SQLException {
 		Scene scene=createScene();
@@ -65,11 +60,7 @@ public class ArtikelView {
 
 		artikelEinkaufTable = getTableArtikelEinkauf();
 		artikelVerkaufTable = getTableArtikelVerkauf();
-		// Tabloları doldur
-		//artikelEinkaufTable.setItems(ArtikelRepo.getArtikelObservableList());
-		//artikelVerkaufTable.setItems(ArtikelRepo.getArtikelObservableList());
 
-		// Sonra selection listener'ları ekle
 		initializeTableSelection();
 
 		VBox artikelVerkaufVbox = createArtikelVerkaufVBox();
@@ -83,11 +74,11 @@ public class ArtikelView {
 	private VBox createArtikelEinKaufVBox() {
 
 		Import.setOnAction(e -> {
-			artikelController.importArtikel();
+			NavigationManager.getInstance().importArtikel();
 		});
 
 
-		exportAsPdf.setOnAction(e->artikelController.exportAsPdf());
+		exportAsPdf.setOnAction(e->NavigationManager.getInstance().exportAsPdf());
 
 		bearbeiten.setOnAction(e->bearbeitenSelectedArtikel());
 
@@ -111,11 +102,11 @@ public class ArtikelView {
 
 
 		Import2.setOnAction(e -> {
-			artikelController.importArtikel();
+			NavigationManager.getInstance().importArtikel();
 		});
 
 
-		exportAsPdf2.setOnAction(e->artikelController.exportAsPdf());
+		exportAsPdf2.setOnAction(e->NavigationManager.getInstance().exportAsPdf());
 
 		bearbeiten2.setOnAction(e->bearbeitenSelectedArtikel());
 
@@ -136,7 +127,7 @@ public class ArtikelView {
 
 		abbrechen.setOnAction(e-> {
 			try {
-				mainView.show();
+				NavigationManager.getInstance().openMainView();
 			} catch (SQLException ex) {
 				throw new RuntimeException(ex);
 			}
@@ -144,7 +135,7 @@ public class ArtikelView {
 
 		weiter.setOnAction(e-> {
 			try {
-				inventurController.openForm(selectedQuartalId);
+				NavigationManager.getInstance().openInventurForm();
 			} catch (SQLException ex) {
 				throw new RuntimeException(ex);
 			}
@@ -164,7 +155,7 @@ public class ArtikelView {
 
 	private TableView<ArtikelOutput> getTableArtikelEinkauf() throws SQLException {
 		artikelEinkaufTable =new TableView<>();
-		ObservableList<ArtikelOutput> artikelTable = artikelController.getArtikelTable(selectedQuartalId);
+		ObservableList<ArtikelOutput> artikelTable = NavigationManager.getInstance().getArtikelTable();
 		artikelEinkaufTable.setItems(artikelTable);
 		artikelEinkaufTable.setPrefHeight(Utilitie.MAIN_TABLE_WIDTH);
 		artikelEinkaufTable.setPrefWidth(Utilitie.MAIN_TABLE_HEIGHT);
@@ -189,7 +180,7 @@ public class ArtikelView {
 
 	private TableView<ArtikelOutput> getTableArtikelVerkauf() throws SQLException {
 		artikelVerkaufTable =new TableView<>();
-		ObservableList<ArtikelOutput> artikelTable = artikelController.getArtikelTable(selectedQuartalId);
+		ObservableList<ArtikelOutput> artikelTable = NavigationManager.getInstance().getArtikelTable();
 		artikelVerkaufTable.setItems(artikelTable);
 		artikelVerkaufTable.setPrefHeight(Utilitie.MAIN_TABLE_WIDTH);
 		artikelVerkaufTable.setPrefWidth(Utilitie.MAIN_TABLE_HEIGHT);
@@ -229,7 +220,7 @@ public class ArtikelView {
 		if (artikel != null) {
 			System.out.println("Bearbeiten: " + artikel.getName() + " (ID: " + artikel.getArtikelId() + ")");
 			// Burada düzenleme ekranı açılabilir veya controller'a gönderilebilir
-			artikelController.bearbeitenArtikel(artikel);
+			NavigationManager.getInstance().bearbeitenArtikel(artikel);
 		} else {
 			System.out.println("Hiçbir ürün seçilmedi.");
 		}

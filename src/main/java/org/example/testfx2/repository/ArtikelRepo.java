@@ -2,6 +2,7 @@ package org.example.testfx2.repository;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.example.testfx2.bean.SessionData;
 import org.example.testfx2.db.Database;
 import org.example.testfx2.model2.*;
 import org.example.testfx2.utils.AlertUtil;
@@ -10,22 +11,22 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class ArtikelRepo {
 
 	private static Connection conn=Database.connect();
 	private static ObservableList<ArtikelOutput> artikelObservableList;
-	;
 
 
-	public static ObservableList<ArtikelOutput> getArtikelObservableList(int quartalId) throws SQLException {
+	public static ObservableList<ArtikelOutput> getArtikelObservableList() throws SQLException {
 
-			refreshData(quartalId);
+			refreshData();
 
 		return artikelObservableList;
 	}
 
-	public static void refreshData(int quartalId) throws SQLException {
-		List<ArtikelOutput> artikels=getArtikelOutputListFromQuartal(quartalId);
+	public static void refreshData() throws SQLException {
+		List<ArtikelOutput> artikels=getArtikelOutputListFromQuartal();
 		if (artikels != null) {
 			artikelObservableList = FXCollections.observableArrayList(artikels);
 		} else {
@@ -33,7 +34,7 @@ public class ArtikelRepo {
 		}
 	}
 
-	private static List<ArtikelOutput> getArtikelOutputListFromQuartal(int quartalId) {
+	private static List<ArtikelOutput> getArtikelOutputListFromQuartal() {
 
 		List<ArtikelOutput> artikels=new ArrayList<>();
 		String sql = """
@@ -50,7 +51,8 @@ public class ArtikelRepo {
     """;
 
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setInt(1, quartalId);
+
+			pstmt.setInt(1, SessionData.getInstance().getSelectedQuartalId());
 
 			ResultSet rs = pstmt.executeQuery();
 
@@ -65,7 +67,7 @@ public class ArtikelRepo {
 				artikels.add(output);
 			}
 
-			System.out.println("Quartal " + quartalId + " için " + artikels.size() + " artikel bulundu");
+			System.out.println("Quartal " + SessionData.getInstance().getSelectedQuartalId()+ " için " + artikels.size() + " artikel bulundu");
 
 		} catch (SQLException e) {
 			System.err.println("ArtikelOutput listesi alınırken hata: " + e.getMessage());
@@ -75,7 +77,7 @@ public class ArtikelRepo {
 		return artikels;
 	}
 
-	public static ObservableList<ArtikelDetailStandort> getArtikelObservableListWithStandort(int quartalid, String standort) {
+	public static ObservableList<ArtikelDetailStandort> getArtikelObservableListWithStandort(String standort) {
 		List<ArtikelDetailStandort> list = new ArrayList<>();
 		String sql = """
 				
@@ -100,7 +102,7 @@ public class ArtikelRepo {
 
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, standort);
-			pstmt.setInt(2,quartalid);
+			pstmt.setInt(2,SessionData.getInstance().getSelectedQuartalId());
 
 			ResultSet rs = pstmt.executeQuery();
 

@@ -1,6 +1,6 @@
 package org.example.testfx2.views;
 
-import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -9,8 +9,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import org.example.testfx2.model.KundeSaldo;
-import org.example.testfx2.model.TauschkontoUebersicht;
+import org.example.testfx2.controller.NavigationManager;
+import org.example.testfx2.model2.KundeSaldo;
+import org.example.testfx2.model2.TauschkontoUebersicht;
 import org.example.testfx2.repository.TauschkontoRepo;
 import org.example.testfx2.utils.ModernButton;
 import org.example.testfx2.utils.Utilitie;
@@ -20,10 +21,11 @@ import java.sql.SQLException;
 
 // TauschkontoView.java
 public class TauschkontoView {
-    private MainView mainView=new MainView();
-    private BerechnungView berechnungView=new BerechnungView();
+
+
     private TableView<TauschkontoUebersicht> uebersichtTable;
     private TableView<KundeSaldo> kundenTable;
+
     private Button importButton = new ModernButton("Import");
     private Button exportPdfButton = new ModernButton("Export as PDF");
     private Button bearbeitenButton = new ModernButton("Bearbeiten");
@@ -83,9 +85,10 @@ public class TauschkontoView {
 
         // Özet tablosu
         uebersichtTable = new TableView<>();
-        uebersichtTable.setItems(FXCollections.observableArrayList(
-                TauschkontoRepo.getTauschkontoUebersicht()
-        ));
+
+        ObservableList<TauschkontoUebersicht> observableList=NavigationManager.getInstance().getTauschkontoUbersichtData();
+        uebersichtTable.setItems(observableList);
+
         uebersichtTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         TableColumn<TauschkontoUebersicht, String> artCol = new TableColumn<>("Art");
@@ -114,14 +117,8 @@ public class TauschkontoView {
         uebersichtTable.getColumns().addAll(artCol, saldoCol, summeCol);
         uebersichtTable.setPrefHeight(150);
 
-        // Toplam label
-        double gesamtSumme = TauschkontoRepo.getTauschkontoUebersicht().stream()
-                .mapToDouble(TauschkontoUebersicht::getSumme)
-                .sum();
-        Label gesamtLabel = new Label("Summe: " + String.format("%,.0f", gesamtSumme));
-        gesamtLabel.setStyle("-fx-font-weight: bold;");
 
-        vbox.getChildren().addAll(topButtonBox, tableLabel, uebersichtTable, gesamtLabel);
+        vbox.getChildren().addAll(topButtonBox, tableLabel, uebersichtTable);
         return vbox;
     }
 
@@ -138,9 +135,9 @@ public class TauschkontoView {
         Label label = new Label("Kunde");
 
         kundenTable = new TableView<>();
-        kundenTable.setItems(FXCollections.observableArrayList(
-                TauschkontoRepo.getKundenMitSaldos()
-        ));
+        ObservableList<KundeSaldo> kundeSaldoObservableList=NavigationManager.getInstance().getKundeSaldoObservationList();
+
+        kundenTable.setItems(kundeSaldoObservableList);
         kundenTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         TableColumn<KundeSaldo, String> nameCol = new TableColumn<>("Kunde");
@@ -191,14 +188,14 @@ public class TauschkontoView {
 
         abbrechenButton.setOnAction(e-> {
 	        try {
-		        mainView.show();
+                NavigationManager.getInstance().openMainView();
 	        } catch (SQLException ex) {
 		        throw new RuntimeException(ex);
 	        }
         });
         weiterButton.setOnAction(e-> {
 	        try {
-		        berechnungView.show();
+                NavigationManager.getInstance().openRechnungsForm();
 	        } catch (SQLException ex) {
 		        throw new RuntimeException(ex);
 	        }

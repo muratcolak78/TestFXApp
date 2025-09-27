@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-// InventurArtikelRepo.java
+
 public class InventurArtikelRepo {
 	public static List<InventurArtikel> getInventurArtikelByInventur(int inventurId) {
 		List<InventurArtikel> list = new ArrayList<>();

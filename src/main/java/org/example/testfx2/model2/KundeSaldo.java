@@ -1,4 +1,4 @@
-package org.example.testfx2.model;
+package org.example.testfx2.model2;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
